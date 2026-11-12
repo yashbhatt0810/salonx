@@ -402,6 +402,10 @@ export async function saveSettings(f: FormData) {
 function clerkError(e: unknown): string {
   const errs = (e as { errors?: { longMessage?: string; message?: string; code?: string }[] })?.errors;
   const first = errs?.[0];
+  if (/email_address/i.test(`${first?.message} ${first?.longMessage} ${first?.code}`))
+    return "Clerk is asking for an email for every account. Either add this staff member's email in Profile below and try again, or in Clerk turn Email address to optional (Configure → User & authentication → Email → Required: off).";
+  if (/password/i.test(`${first?.code}`) || /password/i.test(first?.message ?? ""))
+    return first?.longMessage || "Password does not meet the Clerk password rules.";
   if (first?.code === "form_param_unknown" || /username/i.test(first?.message ?? "") && /not.*(enabled|allowed|valid)/i.test(first?.longMessage ?? ""))
     return "Turn on Username + Password sign-in in Clerk (Configure → User & authentication) and try again.";
   return first?.longMessage || first?.message || (e instanceof Error ? e.message : "Could not save login");
@@ -415,7 +419,7 @@ export async function setEmployeeLogin(f: FormData) {
   const back = (msg: string, ok = false) => redirect(`/staff/${eid}?${ok ? "loginOk" : "loginErr"}=${encodeURIComponent(msg)}#login`);
   if (!/^[a-z0-9_.-]{4,30}$/.test(username)) back("Login ID: 4–30 letters/numbers (a-z, 0-9, _ . -), no spaces.");
   const sql = db();
-  const [emp] = await sql`SELECT id, name, clerk_user_id FROM employees WHERE id = ${eid}`;
+  const [emp] = await sql`SELECT id, name, email, clerk_user_id FROM employees WHERE id = ${eid}`;
   if (!emp) back("Staff not found");
   if (!emp.clerk_user_id && password.length < 8) back("Password must be at least 8 characters.");
   if (emp.clerk_user_id && password && password.length < 8) back("Password must be at least 8 characters.");
@@ -428,7 +432,11 @@ export async function setEmployeeLogin(f: FormData) {
     if (clerkId) {
       await client.users.updateUser(clerkId, { username, ...(password ? { password, skipPasswordChecks: false, signOutOfOtherSessions: true } : {}) });
     } else {
-      const u = await client.users.createUser({ username, password, firstName: first, lastName: rest.join(" ") || undefined, publicMetadata: { salonxEmployeeId: eid } });
+      const u = await client.users.createUser({
+        username, password, firstName: first, lastName: rest.join(" ") || undefined,
+        ...(emp.email ? { emailAddress: [String(emp.email)] } : {}),
+        publicMetadata: { salonxEmployeeId: eid },
+      });
       clerkId = u.id;
     }
   } catch (e) {

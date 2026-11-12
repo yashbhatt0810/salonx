@@ -132,7 +132,7 @@ export default async function StaffPage({ params, searchParams }: { params: Prom
                 <form action={setEmployeeLogin} className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
                   <input type="hidden" name="employee_id" value={e.id} />
                   <label><span className="label">Login ID</span><input className="input" name="username" required defaultValue={e.username ?? e.name.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 12) + String(e.id).padStart(2, "0")} autoComplete="off" /></label>
-                  <label><span className="label">{e.clerk_user_id ? "New password (leave blank to keep)" : "Password (min 8)"}</span><input className="input" type="password" name="password" minLength={e.clerk_user_id ? undefined : 8} required={!e.clerk_user_id} autoComplete="new-password" /></label>
+                  <label><span className="label">{e.clerk_user_id ? "New password (leave blank to keep)" : "Password"}</span><input className="input" type="password" name="password" minLength={e.clerk_user_id ? undefined : 8} required={!e.clerk_user_id} autoComplete="new-password" /></label>
                   <div className="flex items-end"><button className="btn-primary w-full"><KeyRound size={14} /> {e.clerk_user_id ? "Update" : "Create login"}</button></div>
                 </form>
                 {e.clerk_user_id && (
