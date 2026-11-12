@@ -28,6 +28,11 @@ const NAV: { group: string; items: NavItem[] }[] = [
     { href: "/seats", label: "Seats", icon: "seats" },
     { href: "/settings", label: "Settings", icon: "settings", owner: true },
   ]},
+  { group: "Legal", items: [
+    { href: "/terms", label: "Terms & Conditions", icon: "terms" },
+    { href: "/privacy", label: "Privacy Policy", icon: "privacy" },
+    { href: "/consent", label: "Consent Form", icon: "consent" },
+  ]},
 ];
 
 export function Shell({ me, salonName, children }: { me: Me; salonName: string; children: React.ReactNode }) {
@@ -47,11 +52,6 @@ export function Shell({ me, salonName, children }: { me: Me; salonName: string; 
         <div className="mt-0.5 truncate text-xs text-white/50">{salonName}</div>
       </Link>
       <NavLinks groups={groups} />
-      <div className="flex gap-3 px-5 pb-2 text-[11px] text-white/40">
-        <Link href="/terms" className="hover:text-white/70">Terms</Link>
-        <Link href="/privacy" className="hover:text-white/70">Privacy</Link>
-        <Link href="/consent" className="hover:text-white/70">Consent</Link>
-      </div>
       <div className="border-t border-white/10 px-5 py-4">
         <UserBox name={me.name} role={me.role} clerk={Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY)} />
       </div>

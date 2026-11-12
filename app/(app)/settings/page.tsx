@@ -2,6 +2,8 @@ import { requireOwner } from "@/lib/auth";
 import { Save } from "lucide-react";
 import { getSettings } from "@/lib/settings";
 import { saveSettings } from "@/lib/actions";
+import Link from "next/link";
+import { ExternalLink, FileText, Lock, ShieldCheck } from "lucide-react";
 import { Card, Field, PageHeader } from "@/components/ui";
 
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
@@ -34,6 +36,22 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </div>
           <div className="sm:col-span-2"><button className="btn-primary"><Save size={14} /> Save settings</button></div>
         </form>
+      </Card>
+      <Card icon="terms" title="Legal pages" className="mt-4 max-w-2xl">
+        <p className="mb-3 text-sm text-black/60">
+          Public pages — customers can open them without login. They use the salon name, address, owner name, grievance email and city filled above.
+        </p>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {[
+            { href: "/terms", label: "Terms & Conditions", Icon: FileText },
+            { href: "/privacy", label: "Privacy Policy", Icon: Lock },
+            { href: "/consent", label: "Consent Form", Icon: ShieldCheck },
+          ].map(({ href, label, Icon }) => (
+            <Link key={href} href={href} target="_blank" className="flex items-center gap-2 rounded-xl border border-black/10 px-3 py-2.5 text-sm hover:border-brass hover:bg-brass-light/40">
+              <Icon size={16} className="text-brass-dark" /> {label} <ExternalLink size={12} className="ml-auto text-black/35" />
+            </Link>
+          ))}
+        </div>
       </Card>
       <Card icon="consent" title="Who can log in" className="mt-4 max-w-2xl">
         <ul className="list-disc space-y-1 pl-5 text-sm text-black/65">
