@@ -3,7 +3,7 @@ import { CalendarDays, ChevronLeft, ChevronRight, Globe, Phone, Plus, Users } fr
 import { db } from "@/lib/db";
 import { requireBooker } from "@/lib/auth";
 import { getSettings } from "@/lib/settings";
-import { STATUS_META, fmtTime, nowMinutes, stylists as getStylists, toMin, fromMin } from "@/lib/booking";
+import { STATUS_META, fmtTime, freeSlots, nowMinutes, stylists as getStylists, toMin, fromMin } from "@/lib/booking";
 import { Card, PageHeader, Stat } from "@/components/ui";
 import { AutoRefresh } from "@/components/AutoRefresh";
 import { CopyLink } from "@/components/CopyLink";
@@ -53,6 +53,18 @@ export default async function Appointments({ searchParams }: { searchParams: Pro
   const now = date === today() ? nowMinutes() : -1;
   const height = (close - open) * PX;
 
+  // Live data for the "Today's chair" figure (Anatomy kit): booked share of today's stylist time.
+  let figureSrc: string | null = null;
+  if (view === "day" && date === today()) {
+    const working = staff.filter((s) => !s.off).length;
+    const capacity = working * (close - open);
+    const bookedMin = live.reduce((x, a) => x + Number(a.duration_min), 0);
+    const share = capacity > 0 ? Math.min(1, bookedMin / capacity) : 0;
+    const free = await freeSlots(date, st.slot_minutes);
+    const next = Object.values(free.slots).flat().sort()[0] ?? "";
+    figureSrc = `/figures/barber-chair.html?booked=${share.toFixed(3)}&count=${live.length}&next=${next}`;
+  }
+
   const nav = (d: string) => `/appointments?date=${d}${view === "week" ? "&view=week" : ""}`;
   const step = view === "week" ? 7 : 1;
 
@@ -95,6 +107,13 @@ export default async function Appointments({ searchParams }: { searchParams: Pro
             <Stat icon="alert" label="No show" value={stats.noShow} tone={stats.noShow ? "bad" : "default"} />
             <Stat icon="rupee" label="Expected sale" value={inr(stats.est)} tone="brass" />
           </div>
+
+          {figureSrc && (
+            <Card icon="seats" title="Today's chair" className="mb-4" pad={false}
+              action={<span className="text-[11px] text-black/45">Chair height = share of today&apos;s stylist time booked</span>}>
+              <iframe title="Today's chair — live booking figure" src={figureSrc} className="mx-auto block aspect-[640/545] w-full max-w-2xl border-0" loading="lazy" />
+            </Card>
+          )}
 
           {staff.length === 0 ? (
             <Card><p className="py-6 text-center text-sm text-black/50">Add stylists in <Link href="/staff" className="text-brass-dark underline">Staff</Link> to start booking.</p></Card>

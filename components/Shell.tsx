@@ -3,6 +3,7 @@ import { Menu } from "lucide-react";
 import type { Me } from "@/lib/auth";
 import { UserBox } from "./UserBox";
 import { NavLinks } from "./NavLinks";
+import { PageMotion, PressFeedback } from "./motion";
 
 export type NavItem = { href: string; label: string; icon: string; owner?: boolean };
 
@@ -67,7 +68,7 @@ export function Shell({ me, salonName, children }: { me: Me; salonName: string; 
         </summary>
         <div className="max-h-[80vh] overflow-y-auto pb-2">{side}</div>
       </details>
-      <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8 print:p-0">{children}</main>
+      <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8 print:p-0"><PageMotion /><PressFeedback />{children}</main>
     </div>
   );
 }

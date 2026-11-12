@@ -7,6 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "migrate": "node scripts/migrate.mjs",
+    "figures": "node figures/barber-chair/build.mjs",
     "start": "node scripts/migrate.mjs && next start -p ${PORT:-3000}"
   },
   "engines": {
@@ -18,6 +19,7 @@
     "@fontsource/fraunces": "^5.3.0",
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.2",
+    "animejs": "^4.5.0",
     "lucide-react": "^1.72.0",
     "next": "^15.5.29",
     "postgres": "^4.1.1",

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Icon } from "./icons";
+import { CountUp } from "./motion";
 
 export function PageHeader({ title, sub, action, icon }: { title: string; sub?: React.ReactNode; action?: React.ReactNode; icon?: string }) {
   return (
@@ -33,7 +34,7 @@ export function Stat({ label, value, hint, icon, tone = "default" }: { label: st
   return (
     <div className="card p-4">
       <div className="flex items-center justify-between gap-2"><span className="text-xs font-medium text-black/50">{label}</span>{icon && <span className="grid h-7 w-7 place-items-center rounded-lg bg-black/[0.04] text-black/55"><Icon name={icon} size={15} /></span>}</div>
-      <div className={`num mt-1 text-2xl font-semibold tracking-tight ${color}`}>{value}</div>
+      <div className={`num mt-1 text-2xl font-semibold tracking-tight ${color}`}>{typeof value === "string" || typeof value === "number" ? <CountUp text={String(value)} /> : value}</div>
       {hint && <div className="mt-1 text-xs text-black/45">{hint}</div>}
     </div>
   );

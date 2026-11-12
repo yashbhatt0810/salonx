@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { animate, stagger } from "animejs";
+import { PopIn, PressFeedback } from "./motion";
 import { CalendarCheck2, Check, ChevronLeft, Clock, PartyPopper, Scissors, Sparkles, UserRound, Users } from "lucide-react";
 import { publicBook } from "@/lib/appointment-actions";
 
@@ -25,6 +27,14 @@ export function BookingFlow({ services, stylists, days, salonName, salonPhone }:
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<{ stylist: string | null; time: string } | null>(null);
   const [pending, start] = useTransition();
+  const stepRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = stepRef.current;
+    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const kids = Array.from(el.querySelectorAll<HTMLElement>(".card, h1, [data-anim]")).slice(0, 30);
+    const a = animate(kids, { opacity: [0, 1], translateY: [12, 0], duration: 480, delay: stagger(35), ease: "outExpo" });
+    return () => { a.revert(); };
+  }, [step, done]);
 
   const chosen = services.filter((s) => picked.includes(s.id));
   const total = chosen.reduce((a, s) => a + Number(s.price), 0);
@@ -69,7 +79,7 @@ export function BookingFlow({ services, stylists, days, salonName, salonPhone }:
   if (done) {
     return (
       <div className="card p-8 text-center">
-        <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-emerald-50 text-emerald-600"><PartyPopper size={28} /></span>
+        <PopIn className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-emerald-50 text-emerald-600"><PartyPopper size={28} /></PopIn>
         <h1 className="mt-4 font-display text-2xl font-semibold">Booking confirmed!</h1>
         <p className="mt-2 text-black/65">
           {new Date(`${date}T00:00:00`).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })} at <b>{fmt(done.time)}</b>
@@ -105,7 +115,8 @@ export function BookingFlow({ services, stylists, days, salonName, salonPhone }:
   );
 
   return (
-    <div>
+    <div ref={stepRef}>
+      <PressFeedback />
       {Steps}
       {step > 1 && <button onClick={() => setStep(step - 1)} className="mb-3 flex items-center gap-1 text-sm text-black/55"><ChevronLeft size={15} /> Back</button>}
 
