@@ -59,16 +59,19 @@ export async function saveCustomer(f: FormData) {
     anniversary: s(f, "anniversary"),
     address: s(f, "address"),
     notes: s(f, "notes"),
+    whatsapp_consent: bool(f, "whatsapp_consent"),
   };
   const existing = s(f, "id");
   let cid: number;
   if (existing) {
     cid = Number(existing);
-    await db()`UPDATE customers SET ${db()(data)} WHERE id = ${cid}`;
+    await db()`UPDATE customers SET ${db()(data)},
+      consent_at = CASE WHEN ${data.whatsapp_consent} THEN coalesce(consent_at, now()) ELSE NULL END
+      WHERE id = ${cid}`;
   } else {
     const dup = data.phone ? await db()`SELECT id FROM customers WHERE phone = ${data.phone}` : [];
     if (dup.length) redirect(`/customers/${dup[0].id}?dup=1`);
-    const [r] = await db()`INSERT INTO customers ${db()(data)} RETURNING id`;
+    const [r] = await db()`INSERT INTO customers ${db()({ ...data, consent_at: data.whatsapp_consent ? new Date() : null })} RETURNING id`;
     cid = r.id;
   }
   done("/customers", `/customers/${cid}`);
@@ -243,7 +246,7 @@ export async function deleteEmployeeTxn(f: FormData) {
 /* ───────────── Billing / visits ───────────── */
 export type BillInput = {
   customerId: number | null;
-  newCustomer?: { name: string; phone: string | null } | null;
+  newCustomer?: { name: string; phone: string | null; consent?: boolean } | null;
   seatId: number | null;
   date: string;
   discount: number;
@@ -268,7 +271,9 @@ export async function createBill(input: BillInput): Promise<{ ok: true; visitId:
         const found = phone ? await tx`SELECT id FROM customers WHERE phone = ${phone}` : [];
         if (found.length) customerId = found[0].id;
         else {
-          const [c] = await tx`INSERT INTO customers (name, phone) VALUES (${input.newCustomer.name.trim()}, ${phone}) RETURNING id`;
+          const consent = Boolean(input.newCustomer.consent);
+          const [c] = await tx`INSERT INTO customers (name, phone, whatsapp_consent, consent_at)
+            VALUES (${input.newCustomer.name.trim()}, ${phone}, ${consent}, ${consent ? new Date() : null}) RETURNING id`;
           customerId = c.id;
         }
       }
@@ -376,7 +381,7 @@ export async function deleteUsage(f: FormData) {
 export async function saveSettings(f: FormData) {
   await requireOwner();
   const sql = db();
-  for (const key of ["salon_name", "salon_address", "salon_phone", "bill_footer", "reminder_days"]) {
+  for (const key of ["salon_name", "salon_address", "salon_phone", "bill_footer", "reminder_days", "contact_email", "owner_name", "city"]) {
     const v = s(f, key);
     if (v === null) await sql`DELETE FROM settings WHERE key = ${key}`;
     else await sql`INSERT INTO settings (key, value) VALUES (${key}, ${v}) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`;

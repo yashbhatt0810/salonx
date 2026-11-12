@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { Plus } from "lucide-react";
 import { requireAdmin } from "@/lib/auth";
 import { addExpense, addExpenseCategory, deleteExpense, deleteExpenseCategory } from "@/lib/actions";
 import { Card, Empty, MonthNav, PageHeader, Stat, Table } from "@/components/ui";
@@ -23,11 +24,11 @@ export default async function Expenses({ searchParams }: { searchParams: Promise
   const extra = cat ? `&cat=${encodeURIComponent(cat)}` : "";
   return (
     <>
-      <PageHeader title="Expenses" sub="Salary, tea, fuel, rent, electricity and everything else"
+      <PageHeader icon="expenses" title="Expenses" sub="Salary, tea, fuel, rent, electricity and everything else"
         action={<MonthNav base="/expenses" month={month} label={monthLabel(month)} prev={shiftMonth(month, -1)} next={shiftMonth(month, 1)} extra={extra} />} />
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="space-y-4">
-          <Card title="Add expense">
+          <Card icon="expenses" title="Add expense">
             <form action={addExpense} className="grid grid-cols-2 gap-2">
               <label className="col-span-2"><span className="label">Category</span>
                 <select className="input" name="category" required>{cats.map((c) => <option key={c.id}>{c.name}</option>)}</select>
@@ -36,12 +37,12 @@ export default async function Expenses({ searchParams }: { searchParams: Promise
               <label><span className="label">Date</span><input className="input" type="date" name="date" defaultValue={today()} /></label>
               <label><span className="label">Paid by</span><select className="input" name="payment_mode">{PAYMENT_MODES.map((m) => <option key={m}>{m}</option>)}</select></label>
               <label><span className="label">Note</span><input className="input" name="note" placeholder="optional" /></label>
-              <button className="btn-primary col-span-2">Add expense</button>
+              <button className="btn-primary col-span-2"><Plus size={14} /> Add expense</button>
             </form>
             <p className="mt-2 text-xs text-black/45">Staff salary & upad are best entered from the staff page — they appear here automatically.</p>
           </Card>
           <Stat label={`Total · ${monthLabel(month)}`} value={inr(total)} tone="bad" />
-          <Card title="By category">
+          <Card icon="list" title="By category">
             {byCat.length === 0 ? <p className="text-sm text-black/45">No expenses.</p> : byCat.map((r) => (
               <a key={r.category} href={`/expenses?month=${month}&cat=${encodeURIComponent(r.category)}`} className="block py-1.5">
                 <div className="flex justify-between text-sm"><span>{r.category}</span><span className="num font-medium">{inr(r.v)}</span></div>
@@ -49,9 +50,9 @@ export default async function Expenses({ searchParams }: { searchParams: Promise
               </a>
             ))}
           </Card>
-          <Card title="Expense categories">
+          <Card icon="tag" title="Expense categories">
             <form action={addExpenseCategory} className="mb-2 flex gap-2">
-              <input className="input" name="name" placeholder="New category" required /><button className="btn-ghost">Add</button>
+              <input className="input" name="name" placeholder="New category" required /><button className="btn-ghost"><Plus size={14} /> Add</button>
             </form>
             <div className="flex flex-wrap gap-1.5">
               {cats.map((c) => (

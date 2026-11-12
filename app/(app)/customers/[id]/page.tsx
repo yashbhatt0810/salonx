@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MessageCircle, Plus } from "lucide-react";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
@@ -36,21 +37,21 @@ export default async function CustomerPage({ params, searchParams }: { params: P
         title={c.name}
         sub={<>{c.phone ?? "No mobile"}{c.gender ? ` · ${c.gender}` : ""} · customer since {fmtDate(c.created_at?.toISOString?.() ?? String(c.created_at))}</>}
         action={<>
-          <Link href={`/billing?customer=${c.id}`} className="btn-brass">＋ New bill</Link>
-          {wa && <a href={wa} target="_blank" className="btn-ghost">WhatsApp</a>}
+          <Link href={`/billing?customer=${c.id}`} className="btn-brass"><Plus size={15} /> New bill</Link>
+          {wa && <a href={wa} target="_blank" className="btn-ghost"><MessageCircle size={14} /> WhatsApp</a>}
         </>}
       />
       {sp.dup && <div className="mb-4 rounded-lg bg-amber-50 px-4 py-2 text-sm text-amber-800">A customer with this mobile already exists — opened the existing record.</div>}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat label="Visits" value={visits.length} />
-        <Stat label="Total spent" value={inr(spent)} tone="brass" />
-        <Stat label="Last visit" value={last ? fmtDate(last.visit_date) : "—"} hint={last ? `${daysSince(last.visit_date)} days ago` : undefined} />
-        <Stat label="Usual barber" value={favStaff[0]?.name ?? "—"} hint={favStaff[0] ? `${favStaff[0].n} services` : undefined} />
+        <Stat icon="bills" label="Visits" value={visits.length} />
+        <Stat icon="rupee" label="Total spent" value={inr(spent)} tone="brass" />
+        <Stat icon="clock" label="Last visit" value={last ? fmtDate(last.visit_date) : "—"} hint={last ? `${daysSince(last.visit_date)} days ago` : undefined} />
+        <Stat icon="staff" label="Usual barber" value={favStaff[0]?.name ?? "—"} hint={favStaff[0] ? `${favStaff[0].n} services` : undefined} />
       </div>
 
       {last && (
-        <Card title="Last time" className="mt-4">
+        <Card icon="clock" title="Last time" className="mt-4">
           <div className="flex flex-wrap gap-2">
             {lastItems.map((i, k) => (
               <span key={k} className="pill bg-brass-light px-3 py-1 text-sm text-ink">{i.service_name} <span className="ml-1 text-black/50">by {i.barber ?? "—"}</span></span>
@@ -61,7 +62,7 @@ export default async function CustomerPage({ params, searchParams }: { params: P
       )}
 
       <div className="mt-4 grid gap-4 lg:grid-cols-5">
-        <Card title="Visit history" pad={false} className="lg:col-span-3">
+        <Card icon="bills" title="Visit history" pad={false} className="lg:col-span-3">
           {visits.length === 0 ? <Empty>No visits yet.</Empty> : (
             <Table>
               <thead><tr><th>Date</th><th>Services · barber</th><th className="text-right">Amount</th></tr></thead>
@@ -83,7 +84,7 @@ export default async function CustomerPage({ params, searchParams }: { params: P
           )}
         </Card>
         <div className="space-y-4 lg:col-span-2">
-          <Card title="Customer details">
+          <Card icon="customers" title="Customer details">
             <CustomerForm c={c as never} />
           </Card>
           {me.role === "owner" && (

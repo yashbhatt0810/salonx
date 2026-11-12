@@ -13,13 +13,13 @@ export default async function Salary({ searchParams }: { searchParams: Promise<{
   const sum = (k: keyof (typeof rows)[number]) => rows.reduce((a, r) => a + Number(r[k]), 0);
   return (
     <>
-      <PageHeader title="Salary sheet" sub={`${days} days · P & W = full day, H = half, A = unpaid`}
+      <PageHeader icon="salary" title="Salary sheet" sub={`${days} days · P & W = full day, H = half, A = unpaid`}
         action={<MonthNav base="/salary" month={month} label={monthLabel(month)} prev={shiftMonth(month, -1)} next={shiftMonth(month, 1)} />} />
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat label="Gross salary" value={inr(sum("gross"))} />
-        <Stat label="Upad given" value={inr(sum("upad"))} />
-        <Stat label="Already paid" value={inr(sum("paid"))} />
-        <Stat label="Balance to pay" value={inr(sum("balance"))} tone="brass" />
+        <Stat icon="salary" label="Gross salary" value={inr(sum("gross"))} />
+        <Stat icon="rupee" label="Upad given" value={inr(sum("upad"))} />
+        <Stat icon="rupee" label="Already paid" value={inr(sum("paid"))} />
+        <Stat icon="salary" label="Balance to pay" value={inr(sum("balance"))} tone="brass" />
       </div>
       <Card pad={false}>
         {rows.length === 0 ? <Empty>No staff.</Empty> : (

@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { NavItem } from "./Shell";
+import { Icon } from "./icons";
 
 export function NavLinks({ groups }: { groups: { group: string; items: NavItem[] }[] }) {
   const path = usePathname();
@@ -19,7 +20,7 @@ export function NavLinks({ groups }: { groups: { group: string; items: NavItem[]
                 onClick={(e) => (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open")}
                 className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition ${active ? "bg-white/10 text-white" : "text-white/65 hover:bg-white/5 hover:text-white"}`}
               >
-                <span className={`w-4 text-center text-xs ${active ? "text-brass" : ""}`}>{i.icon}</span>
+                <Icon name={i.icon} size={16} className={active ? "text-brass" : ""} />
                 {i.label}
               </Link>
             );

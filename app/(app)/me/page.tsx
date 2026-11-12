@@ -28,23 +28,23 @@ export default async function MyPanel({ searchParams }: { searchParams: Promise<
       <PageHeader title={`Hi, ${me.name.split(" ")[0]}`} sub="Your work, attendance and salary"
         action={<MonthNav base="/me" month={month} label={monthLabel(month)} prev={shiftMonth(month, -1)} next={shiftMonth(month, 1)} />} />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat label="Today" value={`${todayWork.length} services`} hint={inr(todayWork.reduce((a, w) => a + Number(w.amt), 0))} />
-        <Stat label="This month" value={`${work.length} services`} hint={inr(sheet?.service_sale)} tone="brass" />
-        <Stat label="Paid days" value={`${sheet?.paid_days ?? 0} / ${days}`} />
-        <Stat label="Balance salary" value={inr(sheet?.balance)} />
+        <Stat icon="clock" label="Today" value={`${todayWork.length} services`} hint={inr(todayWork.reduce((a, w) => a + Number(w.amt), 0))} />
+        <Stat icon="reports" label="This month" value={`${work.length} services`} hint={inr(sheet?.service_sale)} tone="brass" />
+        <Stat icon="attendance" label="Paid days" value={`${sheet?.paid_days ?? 0} / ${days}`} />
+        <Stat icon="salary" label="Balance salary" value={inr(sheet?.balance)} />
       </div>
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
-        <Card title="My attendance">
+        <Card icon="attendance" title="My attendance">
           <AttendanceCalendar employeeId={me.employeeId} month={month} days={days} firstWeekday={new Date(`${start}T00:00:00`).getDay()}
             initial={Object.fromEntries(att.map((a) => [a.date, a.status]))} editable={false} todayStr={today()} />
         </Card>
-        {sheet && <Card title="My salary"><SalaryBreakdown r={sheet} days={days} />
+        {sheet && <Card icon="salary" title="My salary"><SalaryBreakdown r={sheet} days={days} />
           {txns.length > 0 && <div className="mt-3 border-t border-black/5 pt-2 text-xs text-black/55">
             {txns.map((t, i) => <div key={i} className="flex justify-between py-0.5"><span>{fmtDate(t.date)} · {t.type === "upad" ? "Upad" : t.type === "bonus" ? "Bonus" : "Salary paid"}</span><span className="num">{inr(t.amount)}</span></div>)}
           </div>}
         </Card>}
       </div>
-      <Card title="My services" pad={false} className="mt-4">
+      <Card icon="services" title="My services" pad={false} className="mt-4">
         {work.length === 0 ? <Empty>No services this month.</Empty> : (
           <Table>
             <thead><tr><th>Date</th><th>Service</th><th>Customer</th><th className="text-right">Amount</th></tr></thead>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MessageCircle, Plus, User } from "lucide-react";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
@@ -29,10 +30,10 @@ export default async function Visit({ params, searchParams }: { params: Promise<
     <div className="mx-auto max-w-xl">
       {sp.new && <div className="mb-4 rounded-lg bg-emerald-50 px-4 py-2 text-sm text-emerald-800">Bill saved.</div>}
       <div className="mb-4 flex flex-wrap gap-2 print:hidden">
-        <Link href="/billing" className="btn-brass">＋ Next bill</Link>
-        {wa && <a href={wa} target="_blank" className="btn-ghost">Send on WhatsApp</a>}
+        <Link href="/billing" className="btn-brass"><Plus size={15} /> Next bill</Link>
+        {wa && <a href={wa} target="_blank" className="btn-ghost"><MessageCircle size={15} /> Send on WhatsApp</a>}
         <PrintButton />
-        {v.customer_id && <Link href={`/customers/${v.customer_id}`} className="btn-ghost">Customer</Link>}
+        {v.customer_id && <Link href={`/customers/${v.customer_id}`} className="btn-ghost"><User size={15} /> Customer</Link>}
       </div>
       <div className="card p-6">
         <div className="text-center">

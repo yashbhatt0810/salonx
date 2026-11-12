@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { UserPlus } from "lucide-react";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { Card, Empty, PageHeader, Table } from "@/components/ui";
@@ -14,7 +15,7 @@ export default async function Staff() {
     FROM employees e ORDER BY e.active DESC, e.name`;
   return (
     <>
-      <PageHeader title="Staff" sub={`${rows.filter((r) => r.active).length} active`} action={<Link href="/staff/new" className="btn-brass">＋ Add staff</Link>} />
+      <PageHeader icon="staff" title="Staff" sub={`${rows.filter((r) => r.active).length} active`} action={<Link href="/staff/new" className="btn-brass"><UserPlus size={15} /> Add staff</Link>} />
       <Card pad={false}>
         {rows.length === 0 ? <Empty>No staff yet. Add your barbers to start billing.</Empty> : (
           <Table>

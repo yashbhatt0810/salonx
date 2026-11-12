@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Save } from "lucide-react";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { addEmployeeTxn, deleteEmployee, deleteEmployeeTxn } from "@/lib/actions";
@@ -42,10 +43,10 @@ export default async function StaffPage({ params, searchParams }: { params: Prom
         action={<MonthNav base={`/staff/${e.id}`} month={month} label={monthLabel(month)} prev={shiftMonth(month, -1)} next={shiftMonth(month, 1)} />}
       />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat label="Services done" value={totalServices} />
-        <Stat label="Service sale" value={inr(sheet?.service_sale)} tone="brass" />
-        <Stat label="Paid days" value={`${sheet?.paid_days ?? 0} / ${days}`} />
-        {isOwner && <Stat label="Balance to pay" value={inr(sheet?.balance)} tone={(sheet?.balance ?? 0) >= 0 ? "default" : "bad"} />}
+        <Stat icon="services" label="Services done" value={totalServices} />
+        <Stat icon="rupee" label="Service sale" value={inr(sheet?.service_sale)} tone="brass" />
+        <Stat icon="attendance" label="Paid days" value={`${sheet?.paid_days ?? 0} / ${days}`} />
+        {isOwner && <Stat icon="salary" label="Balance to pay" value={inr(sheet?.balance)} tone={(sheet?.balance ?? 0) >= 0 ? "default" : "bad"} />}
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
@@ -53,7 +54,7 @@ export default async function StaffPage({ params, searchParams }: { params: Prom
           <AttendanceCalendar employeeId={e.id} month={month} days={days} firstWeekday={firstWeekday} initial={attMap} editable todayStr={today()} />
         </Card>
         {isOwner && sheet && (
-          <Card title="Salary calculation">
+          <Card icon="salary" title="Salary calculation">
             <SalaryBreakdown r={sheet} days={days} />
           </Card>
         )}
@@ -61,7 +62,7 @@ export default async function StaffPage({ params, searchParams }: { params: Prom
 
       {isOwner && (
         <div className="mt-4 grid gap-4 lg:grid-cols-5">
-          <Card title="Add upad / bonus / salary payment" className="lg:col-span-2">
+          <Card icon="rupee" title="Add upad / bonus / salary payment" className="lg:col-span-2">
             <form action={addEmployeeTxn} className="grid grid-cols-2 gap-2">
               <input type="hidden" name="employee_id" value={e.id} />
               <input type="hidden" name="salary_month" value={month} />
@@ -77,7 +78,7 @@ export default async function StaffPage({ params, searchParams }: { params: Prom
               </label>
               <label><span className="label">Note</span><input className="input" name="note" /></label>
               <p className="col-span-2 text-xs text-black/45">Counts against {monthLabel(month)}. Upad and salary payments are also added to Expenses automatically.</p>
-              <button className="btn-primary col-span-2">Save</button>
+              <button className="btn-primary col-span-2"><Save size={14} /> Save</button>
             </form>
           </Card>
           <Card title={`Ledger · ${monthLabel(month)}`} pad={false} className="lg:col-span-3">
@@ -102,7 +103,7 @@ export default async function StaffPage({ params, searchParams }: { params: Prom
       )}
 
       <div className="mt-4 grid gap-4 lg:grid-cols-5">
-        <Card title="Work this month" pad={false} className="lg:col-span-2">
+        <Card icon="services" title="Work this month" pad={false} className="lg:col-span-2">
           {work.length === 0 ? <Empty>No services yet.</Empty> : (
             <Table>
               <thead><tr><th>Service</th><th className="text-right">Count</th><th className="text-right">Amount</th></tr></thead>
@@ -111,7 +112,7 @@ export default async function StaffPage({ params, searchParams }: { params: Prom
           )}
         </Card>
         <div className="space-y-4 lg:col-span-3">
-          <Card title="Profile"><EmployeeForm e={e as never} isOwner={isOwner} /></Card>
+          <Card icon="staff" title="Profile"><EmployeeForm e={e as never} isOwner={isOwner} /></Card>
           {isOwner && (
             <form action={deleteEmployee} className="text-right">
               <input type="hidden" name="id" value={e.id} />

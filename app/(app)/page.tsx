@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight, BellRing, MessageCircle, Plus } from "lucide-react";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { getSettings } from "@/lib/settings";
@@ -35,10 +36,10 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     sql`SELECT i.id, i.name, i.unit, i.min_stock,
           coalesce((SELECT sum(qty) FROM purchases WHERE item_id = i.id),0) - coalesce((SELECT sum(qty) FROM stock_usage WHERE item_id = i.id),0) AS stock
         FROM purchase_items i WHERE i.active AND i.min_stock > 0`,
-    sql`SELECT id, name, phone, dob, anniversary FROM customers
+    sql`SELECT id, name, phone, dob, anniversary, whatsapp_consent FROM customers
         WHERE (dob IS NOT NULL AND to_char(dob,'MM-DD') = to_char(${t}::date,'MM-DD'))
            OR (anniversary IS NOT NULL AND to_char(anniversary,'MM-DD') = to_char(${t}::date,'MM-DD'))`,
-    sql`SELECT c.id, c.name, c.phone, max(v.visit_date) AS last
+    sql`SELECT c.id, c.name, c.phone, c.whatsapp_consent, max(v.visit_date) AS last
         FROM customers c JOIN visits v ON v.customer_id = c.id
         GROUP BY c.id HAVING max(v.visit_date) BETWEEN (${t}::date - ${settings.reminder_days + 7}::int) AND (${t}::date - ${settings.reminder_days}::int)
         ORDER BY last LIMIT 10`,
@@ -53,23 +54,23 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       <PageHeader
         title={`Hello, ${me.name.split(" ")[0]}`}
         sub={`${fmtDate(t)} · ${settings.salon_name}`}
-        action={<Link href="/billing" className="btn-brass">＋ New Bill</Link>}
+        action={<Link href="/billing" className="btn-brass"><Plus size={15} /> New Bill</Link>}
       />
       {sp.denied && <div className="mb-4 rounded-lg bg-amber-50 px-4 py-2 text-sm text-amber-800">That page is for the owner only.</div>}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat label="Today's sale" value={inr(todayRev.v)} hint={`${todayRev.bills} bills`} tone="brass" />
-        <Stat label="Today's expense" value={inr(todayExp.v)} />
-        <Stat label="This month sale" value={inr(monthRev.v)} hint={`${monthRev.bills} bills`} />
+        <Stat icon="rupee" label="Today's sale" value={inr(todayRev.v)} hint={`${todayRev.bills} bills`} tone="brass" />
+        <Stat icon="expenses" label="Today's expense" value={inr(todayExp.v)} />
+        <Stat icon="reports" label="This month sale" value={inr(monthRev.v)} hint={`${monthRev.bills} bills`} />
         {me.role === "owner" ? (
-          <Stat label="Month profit (approx.)" value={inr(profit)} tone={profit >= 0 ? "good" : "bad"} hint="Sale − expenses − purchases" />
+          <Stat icon="reports" label="Month profit (approx.)" value={inr(profit)} tone={profit >= 0 ? "good" : "bad"} hint="Sale − expenses − purchases" />
         ) : (
-          <Stat label="Customers" value={custCount.v} />
+          <Stat icon="customers" label="Customers" value={custCount.v} />
         )}
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
-        <Card title="Today's bills" className="lg:col-span-2" pad={false} action={<Link href="/visits" className="text-xs text-brass-dark">All bills →</Link>}>
+        <Card icon="bills" title="Today's bills" className="lg:col-span-2" pad={false} action={<Link href="/visits" className="text-xs text-brass-dark">All bills <ArrowRight size={12} /></Link>}>
           {recent.length === 0 ? <Empty>No bills yet today.</Empty> : (
             <Table>
               <thead><tr><th>#</th><th>Customer</th><th>Services</th><th>Seat</th><th className="text-right">Amount</th></tr></thead>
@@ -89,12 +90,12 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         </Card>
 
         <div className="space-y-4">
-          <Card title="Collection by mode">
+          <Card icon="rupee" title="Collection by mode">
             {byMode.length === 0 ? <p className="text-sm text-black/45">—</p> : byMode.map((m) => (
               <div key={m.payment_mode} className="flex justify-between py-1 text-sm"><span>{m.payment_mode}</span><span className="num font-medium">{inr(m.v)}</span></div>
             ))}
           </Card>
-          <Card title={`Staff today · ${present}/${attendance.length} in`} action={<Link href="/attendance" className="text-xs text-brass-dark">Mark →</Link>}>
+          <Card icon="attendance" title={`Staff today · ${present}/${attendance.length} in`} action={<Link href="/attendance" className="text-xs text-brass-dark">Mark <ArrowRight size={12} /></Link>}>
             {attendance.length === 0 ? <p className="text-sm text-black/45">Add staff first.</p> : attendance.map((a) => {
               const w = byStaff.find((s) => s.name === a.name);
               return (
@@ -112,30 +113,30 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       </div>
 
       <div className="mt-4 grid gap-4 md:grid-cols-3">
-        <Card title="🎂 Birthday / anniversary today">
+        <Card icon="cake" title="Birthday / anniversary today">
           {birthdays.length === 0 ? <p className="text-sm text-black/45">None today.</p> : birthdays.map((c) => {
             const isBday = c.dob && c.dob.slice(5) === t.slice(5);
             const link = waLink(c.phone, `Happy ${isBday ? "Birthday" : "Anniversary"} ${c.name}! 🎉 Wishes from ${settings.salon_name}. Visit us this week for a special treat.`);
             return (
               <div key={c.id} className="flex items-center justify-between py-1 text-sm">
                 <Link href={`/customers/${c.id}`}>{c.name} <span className="text-black/45">· {isBday ? "Birthday" : "Anniversary"}</span></Link>
-                {link && <a className="btn-ghost btn-sm" href={link} target="_blank">WhatsApp</a>}
+                {link && c.whatsapp_consent ? <a className="btn-ghost btn-sm" href={link} target="_blank"><MessageCircle size={14} /> WhatsApp</a> : <span className="text-[11px] text-black/40">No consent</span>}
               </div>
             );
           })}
         </Card>
-        <Card title={`Due for a visit (${settings.reminder_days}+ days)`}>
+        <Card icon="bell" title={`Due for a visit (${settings.reminder_days}+ days)`}>
           {dueBack.length === 0 ? <p className="text-sm text-black/45">Nobody due right now.</p> : dueBack.map((c) => {
             const link = waLink(c.phone, `Hi ${c.name}, it's been a while! Time for your next grooming session at ${settings.salon_name}. Reply to book your slot.`);
             return (
               <div key={c.id} className="flex items-center justify-between py-1 text-sm">
                 <Link href={`/customers/${c.id}`}>{c.name} <span className="text-black/45">· {fmtDate(c.last)}</span></Link>
-                {link && <a className="btn-ghost btn-sm" href={link} target="_blank">Remind</a>}
+                {link && c.whatsapp_consent ? <a className="btn-ghost btn-sm" href={link} target="_blank"><BellRing size={13} /> Remind</a> : <span className="text-[11px] text-black/40">No consent</span>}
               </div>
             );
           })}
         </Card>
-        <Card title="Low stock">
+        <Card icon="alert" title="Low stock">
           {low.length === 0 ? <p className="text-sm text-black/45">All good.</p> : low.map((i) => (
             <div key={i.id} className="flex justify-between py-1 text-sm">
               <span>{i.name}</span><span className="num font-medium text-red-700">{Number(i.stock)} {i.unit}</span>

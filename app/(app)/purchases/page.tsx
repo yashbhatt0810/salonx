@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { PackageMinus, Plus, Save } from "lucide-react";
 import { requireAdmin } from "@/lib/auth";
 import { addPurchase, addUsage, deleteItem, deletePurchase, deleteUsage, saveItem } from "@/lib/actions";
 import { Card, Empty, MonthNav, PageHeader, Table } from "@/components/ui";
@@ -24,11 +25,11 @@ export default async function Purchases({ searchParams }: { searchParams: Promis
   const itemOpts = items.map((i) => <option key={i.id} value={i.id}>{i.name} ({i.unit})</option>);
   return (
     <>
-      <PageHeader title="Purchases & Stock" sub={`${monthLabel(month)} purchases: ${inr(total)}`}
+      <PageHeader icon="purchases" title="Purchases & Stock" sub={`${monthLabel(month)} purchases: ${inr(total)}`}
         action={<MonthNav base="/purchases" month={month} label={monthLabel(month)} prev={shiftMonth(month, -1)} next={shiftMonth(month, 1)} />} />
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card title="Add purchase">
+        <Card icon="purchases" title="Add purchase">
           {items.length === 0 ? <p className="text-sm text-black/50">First add an item below (shampoo, blades, colour…).</p> : (
             <form action={addPurchase} className="grid grid-cols-2 gap-2">
               <label className="col-span-2"><span className="label">Item</span><select className="input" name="item_id" required>{itemOpts}</select></label>
@@ -38,33 +39,33 @@ export default async function Purchases({ searchParams }: { searchParams: Promis
               <label><span className="label">Date</span><input className="input" type="date" name="date" defaultValue={today()} /></label>
               <label><span className="label">Paid by</span><select className="input" name="payment_mode">{PAYMENT_MODES.map((m) => <option key={m}>{m}</option>)}</select></label>
               <label><span className="label">Bill amount ₹</span><input className="input" type="number" step="0.01" name="amount" placeholder="auto = qty × rate" /></label>
-              <button className="btn-primary col-span-2">Add purchase</button>
+              <button className="btn-primary col-span-2"><Plus size={14} /> Add purchase</button>
             </form>
           )}
         </Card>
-        <Card title="Use stock (consumed in salon)">
+        <Card icon="clipboard" title="Use stock (consumed in salon)">
           {items.length === 0 ? <p className="text-sm text-black/50">No items yet.</p> : (
             <form action={addUsage} className="grid grid-cols-2 gap-2">
               <label className="col-span-2"><span className="label">Item</span><select className="input" name="item_id" required>{itemOpts}</select></label>
               <label><span className="label">Qty used</span><input className="input" type="number" step="0.01" min={0.01} name="qty" required /></label>
               <label><span className="label">Date</span><input className="input" type="date" name="date" defaultValue={today()} /></label>
               <label className="col-span-2"><span className="label">Note</span><input className="input" name="note" /></label>
-              <button className="btn-ghost col-span-2">Record usage</button>
+              <button className="btn-ghost col-span-2"><PackageMinus size={14} /> Record usage</button>
             </form>
           )}
         </Card>
-        <Card title="Add item">
+        <Card icon="tag" title="Add item">
           <form action={saveItem} className="grid grid-cols-2 gap-2">
             <label className="col-span-2"><span className="label">Item name</span><input className="input" name="name" required placeholder="e.g. Shaving cream 500ml" /></label>
             <label><span className="label">Unit</span><input className="input" name="unit" defaultValue="pcs" /></label>
             <label><span className="label">Category</span><input className="input" name="category" placeholder="Consumable / Retail" /></label>
             <label className="col-span-2"><span className="label">Low-stock alert at</span><input className="input" type="number" step="0.01" min={0} name="min_stock" defaultValue={0} /></label>
-            <button className="btn-primary col-span-2">Add item</button>
+            <button className="btn-primary col-span-2"><Plus size={14} /> Add item</button>
           </form>
         </Card>
       </div>
 
-      <Card title="Items & current stock" pad={false} className="mt-4">
+      <Card icon="purchases" title="Items & current stock" pad={false} className="mt-4">
         {items.length === 0 ? <Empty>No items yet.</Empty> : (
           <Table>
             <thead><tr><th>Item</th><th>Unit</th><th>Category</th><th className="text-right">Bought</th><th className="text-right">Used</th><th className="text-right">In stock</th><th className="text-right">Last rate</th><th>Alert at</th><th></th></tr></thead>
@@ -88,7 +89,7 @@ export default async function Purchases({ searchParams }: { searchParams: Promis
                     <td className="num text-right text-black/60">{i.last_rate != null ? inr(i.last_rate) : "—"}</td>
                     <td><input form={`item-${i.id}`} className="input num w-20 py-1" type="number" step="0.01" name="min_stock" defaultValue={i.min_stock} /></td>
                     <td className="whitespace-nowrap text-right">
-                      <button form={`item-${i.id}`} className="btn-ghost btn-sm">Save</button>
+                      <button form={`item-${i.id}`} className="btn-ghost btn-sm"><Save size={14} /> Save</button>
                       <form action={deleteItem} className="inline"><input type="hidden" name="id" value={i.id} /><ConfirmSubmit message="Remove item with all its purchase history?">✕</ConfirmSubmit></form>
                     </td>
                   </tr>

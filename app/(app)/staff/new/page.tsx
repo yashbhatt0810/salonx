@@ -6,7 +6,7 @@ export default async function NewStaff() {
   const me = await requireAdmin();
   return (
     <>
-      <PageHeader title="Add staff" />
+      <PageHeader icon="staff" title="Add staff" />
       <Card className="max-w-2xl"><EmployeeForm isOwner={me.role === "owner"} /></Card>
     </>
   );

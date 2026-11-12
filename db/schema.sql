@@ -155,3 +155,7 @@ CREATE INDEX IF NOT EXISTS idx_visit_items_emp ON visit_items(employee_id);
 CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(date);
 CREATE INDEX IF NOT EXISTS idx_attendance_date ON attendance(date);
 CREATE INDEX IF NOT EXISTS idx_purchases_date ON purchases(date);
+
+-- v2: customer consent for WhatsApp / promotional messages (DPDP Act 2023)
+ALTER TABLE customers ADD COLUMN IF NOT EXISTS whatsapp_consent BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE customers ADD COLUMN IF NOT EXISTS consent_at TIMESTAMPTZ;

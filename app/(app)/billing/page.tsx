@@ -18,7 +18,7 @@ export default async function Billing({ searchParams }: { searchParams: Promise<
   const plain = <T,>(rows: T[]) => JSON.parse(JSON.stringify(rows)) as T[];
   return (
     <>
-      <PageHeader title="New Bill" sub="Pick customer, add services with the barber who did them, and save." />
+      <PageHeader icon="bill" title="New Bill" sub="Pick customer, add services with the barber who did them, and save." />
       <BillingForm
         services={plain(services as unknown as { id: number; name: string; price: number; category: string }[])}
         staff={plain(staff as unknown as { id: number; name: string }[])}

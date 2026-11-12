@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { Eye, EyeOff, Pencil, Plus, Save } from "lucide-react";
 import { requireAdmin } from "@/lib/auth";
 import { addCategory, deleteCategory, deleteService, renameCategory, saveService, toggleService } from "@/lib/actions";
 import { Card, PageHeader } from "@/components/ui";
@@ -14,15 +15,15 @@ export default async function Services() {
   const groups = [...cats.map((c) => ({ id: c.id as number, name: c.name as string })), { id: 0, name: "No category" }];
   return (
     <>
-      <PageHeader title="Services" sub={`${cats.length} categories · ${services.length} services`} />
+      <PageHeader icon="services" title="Services" sub={`${cats.length} categories · ${services.length} services`} />
       <div className="mb-4 grid gap-4 lg:grid-cols-2">
-        <Card title="Add category">
+        <Card icon="list" title="Add category">
           <form action={addCategory} className="flex gap-2">
             <input className="input" name="name" placeholder="e.g. Hair, Beard, Spa, Bridal" required />
-            <button className="btn-primary whitespace-nowrap">Add</button>
+            <button className="btn-primary whitespace-nowrap"><Plus size={14} /> Add</button>
           </form>
         </Card>
-        <Card title="Add service">
+        <Card icon="services" title="Add service">
           <form action={saveService} className="grid grid-cols-2 gap-2 sm:grid-cols-[1fr_1fr_6rem_5rem_auto]">
             <input className="input col-span-2 sm:col-span-1" name="name" placeholder="Service name" required />
             <select className="input" name="category_id" defaultValue={cats[0]?.id ?? ""}>
@@ -31,7 +32,7 @@ export default async function Services() {
             </select>
             <input className="input" name="price" type="number" min={0} placeholder="₹ Price" required />
             <input className="input" name="duration_min" type="number" min={0} placeholder="Min" />
-            <button className="btn-primary">Add</button>
+            <button className="btn-primary"><Plus size={14} /> Add</button>
           </form>
         </Card>
       </div>
@@ -48,7 +49,7 @@ export default async function Services() {
                   <form action={renameCategory} className="flex gap-1">
                     <input type="hidden" name="id" value={g.id} />
                     <input className="input w-32 py-1 text-xs" name="name" defaultValue={g.name} />
-                    <button className="btn-ghost btn-sm">Rename</button>
+                    <button className="btn-ghost btn-sm"><Pencil size={13} /> Rename</button>
                   </form>
                   <form action={deleteCategory}><input type="hidden" name="id" value={g.id} /><ConfirmSubmit message="Delete category? Its services move to 'No category'.">Delete</ConfirmSubmit></form>
                 </div>
@@ -67,9 +68,9 @@ export default async function Services() {
                         </select>
                         <input className="input num w-24 py-1" name="price" type="number" min={0} defaultValue={s.price} />
                         <input className="input num w-20 py-1" name="duration_min" type="number" min={0} defaultValue={s.duration_min ?? ""} placeholder="min" />
-                        <button className="btn-ghost btn-sm">Save</button>
+                        <button className="btn-ghost btn-sm"><Save size={14} /> Save</button>
                       </form>
-                      <form action={toggleService}><input type="hidden" name="id" value={s.id} /><button className="btn-ghost btn-sm">{s.active ? "Hide" : "Show"}</button></form>
+                      <form action={toggleService}><input type="hidden" name="id" value={s.id} /><button className="btn-ghost btn-sm">{s.active ? <><EyeOff size={13} /> Hide</> : <><Eye size={13} /> Show</>}</button></form>
                       <form action={deleteService}><input type="hidden" name="id" value={s.id} /><ConfirmSubmit message="Remove this service? Old bills keep the name.">Remove</ConfirmSubmit></form>
                     </div>
                   ))}

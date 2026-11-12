@@ -1,7 +1,8 @@
 import { saveCustomer } from "@/lib/actions";
+import { Save, UserPlus } from "lucide-react";
 import { Field } from "./ui";
 
-type C = { id?: number; name?: string; phone?: string | null; gender?: string | null; dob?: string | null; anniversary?: string | null; address?: string | null; notes?: string | null };
+type C = { whatsapp_consent?: boolean; consent_at?: string | Date | null; id?: number; name?: string; phone?: string | null; gender?: string | null; dob?: string | null; anniversary?: string | null; address?: string | null; notes?: string | null };
 
 export function CustomerForm({ c = {} }: { c?: C }) {
   return (
@@ -18,7 +19,15 @@ export function CustomerForm({ c = {} }: { c?: C }) {
       <Field label="Anniversary"><input className="input" type="date" name="anniversary" defaultValue={c.anniversary ?? ""} /></Field>
       <Field label="Address / Area"><input className="input" name="address" defaultValue={c.address ?? ""} /></Field>
       <Field label="Notes (hair type, preferences, allergies…)" className="sm:col-span-2"><textarea className="input" rows={2} name="notes" defaultValue={c.notes ?? ""} /></Field>
-      <div className="sm:col-span-2"><button className="btn-primary">{c.id ? "Save changes" : "Add customer"}</button></div>
+      <label className="flex items-start gap-2 rounded-xl border border-black/10 p-3 text-sm sm:col-span-2">
+        <input type="checkbox" name="whatsapp_consent" className="mt-0.5" defaultChecked={c.whatsapp_consent ?? false} />
+        <span>
+          Customer agrees to receive WhatsApp / SMS messages — bills, reminders, birthday wishes and offers.
+          <a href="/consent" target="_blank" className="ml-1 text-brass-dark underline">Read consent</a>
+          {c.consent_at && <span className="block text-xs text-black/45">Consent recorded on {new Date(c.consent_at).toLocaleDateString("en-IN")}</span>}
+        </span>
+      </label>
+      <div className="sm:col-span-2"><button className="btn-primary">{c.id ? <><Save size={14} /> Save changes</> : <><UserPlus size={14} /> Add customer</>}</button></div>
     </form>
   );
 }

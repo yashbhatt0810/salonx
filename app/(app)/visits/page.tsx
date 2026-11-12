@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Filter, Plus } from "lucide-react";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { Card, Empty, PageHeader, Table } from "@/components/ui";
@@ -23,7 +24,7 @@ export default async function Visits({ searchParams }: { searchParams: Promise<{
   const total = rows.reduce((a, r) => a + Number(r.total), 0);
   return (
     <>
-      <PageHeader title="Bills" sub={`${rows.length} bills · ${inr(total)}`} action={<Link href="/billing" className="btn-brass">＋ New Bill</Link>} />
+      <PageHeader icon="bills" title="Bills" sub={`${rows.length} bills · ${inr(total)}`} action={<Link href="/billing" className="btn-brass"><Plus size={15} /> New Bill</Link>} />
       <form className="card mb-4 flex flex-wrap items-end gap-3 p-4">
         <label><span className="label">From</span><input className="input" type="date" name="from" defaultValue={from} /></label>
         <label><span className="label">To</span><input className="input" type="date" name="to" defaultValue={to} /></label>
@@ -33,7 +34,7 @@ export default async function Visits({ searchParams }: { searchParams: Promise<{
             {staff.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
         </label>
-        <button className="btn-primary">Show</button>
+        <button className="btn-primary"><Filter size={14} /> Show</button>
       </form>
       <Card pad={false}>
         {rows.length === 0 ? <Empty>No bills in this range.</Empty> : (

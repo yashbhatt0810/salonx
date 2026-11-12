@@ -6,7 +6,7 @@ export default async function NewCustomer() {
   await requireAdmin();
   return (
     <>
-      <PageHeader title="Add customer" />
+      <PageHeader icon="customers" title="Add customer" />
       <Card className="max-w-2xl"><CustomerForm /></Card>
     </>
   );

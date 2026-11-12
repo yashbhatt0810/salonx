@@ -38,17 +38,17 @@ export default async function Reports({ searchParams }: { searchParams: Promise<
 
   return (
     <>
-      <PageHeader title="Reports" sub="Profit & loss, staff performance, top services"
+      <PageHeader icon="reports" title="Reports" sub="Profit & loss, staff performance, top services"
         action={<MonthNav base="/reports" month={month} label={monthLabel(month)} prev={shiftMonth(month, -1)} next={shiftMonth(month, 1)} />} />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-        <Stat label="Sale" value={inr(sale.v)} hint={`${sale.bills} bills · avg ${inr(Math.round(avg))}`} tone="brass" />
-        <Stat label="Expenses" value={inr(exp.v)} />
-        <Stat label="Purchases" value={inr(pur.v)} />
-        <Stat label="Net profit" value={inr(profit)} tone={profit >= 0 ? "good" : "bad"} />
-        <Stat label="Customers served" value={cust.uniq} hint={`${cust.fresh} new · discount ${inr(sale.disc)}`} />
+        <Stat icon="rupee" label="Sale" value={inr(sale.v)} hint={`${sale.bills} bills · avg ${inr(Math.round(avg))}`} tone="brass" />
+        <Stat icon="expenses" label="Expenses" value={inr(exp.v)} />
+        <Stat icon="purchases" label="Purchases" value={inr(pur.v)} />
+        <Stat icon="reports" label="Net profit" value={inr(profit)} tone={profit >= 0 ? "good" : "bad"} />
+        <Stat icon="customers" label="Customers served" value={cust.uniq} hint={`${cust.fresh} new · discount ${inr(sale.disc)}`} />
       </div>
 
-      <Card title="Daily sale vs cost" className="mt-4">
+      <Card icon="reports" title="Daily sale vs cost" className="mt-4">
         <div className="flex h-40 items-end gap-[3px]">
           {daily.map((d) => (
             <div key={d.day} className="group relative flex h-full flex-1 items-end gap-[1px]" title={`${d.day}: sale ${inr(d.sale)}, cost ${inr(d.cost)}`}>
@@ -62,32 +62,32 @@ export default async function Reports({ searchParams }: { searchParams: Promise<
       </Card>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
-        <Card title="Staff performance" pad={false}>
+        <Card icon="staff" title="Staff performance" pad={false}>
           {byStaff.length === 0 ? <Empty>No data.</Empty> : (
             <Table><thead><tr><th>Barber</th><th className="text-right">Services</th><th className="text-right">Sale</th></tr></thead>
               <tbody>{byStaff.map((r) => <tr key={r.name}><td>{r.name}</td><td className="num text-right">{r.n}</td><td className="num text-right font-medium">{inr(r.v)}</td></tr>)}</tbody></Table>
           )}
         </Card>
-        <Card title="Top services" pad={false}>
+        <Card icon="services" title="Top services" pad={false}>
           {byService.length === 0 ? <Empty>No data.</Empty> : (
             <Table><thead><tr><th>Service</th><th className="text-right">Count</th><th className="text-right">Sale</th></tr></thead>
               <tbody>{byService.map((r) => <tr key={r.service_name}><td>{r.service_name}</td><td className="num text-right">{r.n}</td><td className="num text-right font-medium">{inr(r.v)}</td></tr>)}</tbody></Table>
           )}
         </Card>
-        <Card title="Expenses by category" pad={false}>
+        <Card icon="expenses" title="Expenses by category" pad={false}>
           {byCat.length === 0 ? <Empty>No expenses.</Empty> : (
             <Table><tbody>{byCat.map((r) => <tr key={r.category}><td>{r.category}</td><td className="num text-right font-medium">{inr(r.v)}</td></tr>)}
               <tr><td className="text-black/55">Purchases (stock)</td><td className="num text-right font-medium">{inr(pur.v)}</td></tr></tbody></Table>
           )}
         </Card>
-        <Card title="Collection by payment mode" pad={false}>
+        <Card icon="rupee" title="Collection by payment mode" pad={false}>
           {byMode.length === 0 ? <Empty>No data.</Empty> : (
             <Table><tbody>{byMode.map((r) => <tr key={r.payment_mode}><td>{r.payment_mode}</td><td className="num text-right text-black/55">{r.n} bills</td><td className="num text-right font-medium">{inr(r.v)}</td></tr>)}</tbody></Table>
           )}
         </Card>
       </div>
 
-      <Card title="Last 6 months" className="mt-4" pad={false}>
+      <Card icon="reports" title="Last 6 months" className="mt-4" pad={false}>
         <Table>
           <thead><tr><th>Month</th><th>Sale vs cost</th><th className="text-right">Sale</th><th className="text-right">Cost</th><th className="text-right">Profit</th></tr></thead>
           <tbody>
