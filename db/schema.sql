@@ -198,3 +198,18 @@ CREATE INDEX IF NOT EXISTS idx_appt_emp_date ON appointments(employee_id, date);
 
 -- v4: staff permission to schedule bookings
 ALTER TABLE employees ADD COLUMN IF NOT EXISTS can_book BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- v5: salon floor map (positions in metres from the front-left corner)
+ALTER TABLE seats ADD COLUMN IF NOT EXISTS pos_x REAL;
+ALTER TABLE seats ADD COLUMN IF NOT EXISTS pos_y REAL;
+ALTER TABLE seats ADD COLUMN IF NOT EXISTS rot INT NOT NULL DEFAULT 0;
+ALTER TABLE seats ADD COLUMN IF NOT EXISTS kind TEXT NOT NULL DEFAULT 'chair';
+
+CREATE TABLE IF NOT EXISTS floor_items (
+  id SERIAL PRIMARY KEY,
+  kind TEXT NOT NULL,            -- reception | sofa | wash | door | shelf | plant
+  label TEXT,
+  pos_x REAL NOT NULL DEFAULT 1,
+  pos_y REAL NOT NULL DEFAULT 1,
+  rot INT NOT NULL DEFAULT 0
+);
