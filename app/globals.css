@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; --font-sans: "Inter Variable"; --font-display: "Fraunces"; }
+body { @apply bg-[#f6f3ee] text-ink antialiased; }
+
+@layer components {
+  .card { @apply bg-white rounded-2xl border border-black/5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]; }
+  .input { @apply w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm outline-none transition focus:border-brass focus:ring-2 focus:ring-brass/20; }
+  .label { @apply block text-xs font-medium text-black/55 mb-1; }
+  .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium transition disabled:opacity-50; }
+  .btn-primary { @apply btn bg-ink text-white hover:bg-ink-soft; }
+  .btn-brass { @apply btn bg-brass text-white hover:bg-brass-dark; }
+  .btn-ghost { @apply btn border border-black/10 bg-white hover:bg-black/[0.03]; }
+  .btn-danger { @apply btn text-red-700 hover:bg-red-50; }
+  .btn-sm { @apply px-2.5 py-1 text-xs; }
+  .tbl { @apply w-full text-sm; }
+  .tbl th { @apply text-left text-[11px] uppercase tracking-wide font-semibold text-black/45 px-3 py-2 border-b border-black/5 whitespace-nowrap; }
+  .tbl td { @apply px-3 py-2.5 border-b border-black/5 align-middle; }
+  .tbl tr:last-child td { @apply border-b-0; }
+  .pill { @apply inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium; }
+  .num { font-variant-numeric: tabular-nums; }
+}
