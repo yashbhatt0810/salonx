@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { db } from "./db";
-import { getMe, requireAdmin } from "./auth";
+import { getMe, requireBooker } from "./auth";
 import { getSettings } from "./settings";
 import { freeSlots, isFree, toMin } from "./booking";
 import { today } from "./utils";
@@ -106,7 +106,7 @@ async function save(input: ApptInput, createdBy: string): Promise<Result> {
 
 /** Counter / phone booking by owner or manager. */
 export async function saveAppointment(input: ApptInput): Promise<Result> {
-  const me = await requireAdmin();
+  const me = await requireBooker();
   return save({ ...input, source: input.source === "phone" ? "phone" : "counter" }, me.name);
 }
 
@@ -133,7 +133,7 @@ export async function setAppointmentStatus(f: FormData) {
   const id = Number(f.get("id"));
   const status = String(f.get("status"));
   if (!id || !ALLOWED.includes(status)) throw new Error("Invalid");
-  if (me.role === "barber") {
+  if (me.role === "barber" && !me.canBook) {
     const [a] = await db()`SELECT employee_id FROM appointments WHERE id = ${id}`;
     if (!a || a.employee_id !== me.employeeId || status === "cancelled") throw new Error("Not allowed");
   }

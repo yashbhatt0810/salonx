@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { db } from "./db";
 
 export type Role = "owner" | "manager" | "barber";
-export type Me = { name: string; email: string; role: Role; employeeId: number | null };
+export type Me = { name: string; email: string; role: Role; employeeId: number | null; canBook: boolean };
 
 export const clerkEnabled = () =>
   Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY);
@@ -25,18 +25,19 @@ export async function getMe(): Promise<Me | null> {
 
   const owners = ownerEmails();
   const ownerEmail = emails.find((e) => owners.includes(e));
-  if (ownerEmail) return { name, email: ownerEmail, role: "owner", employeeId: null };
+  if (ownerEmail) return { name, email: ownerEmail, role: "owner", employeeId: null, canBook: true };
 
   const sql = db();
   const rows = await sql`
-    SELECT id, name, email, role FROM employees
+    SELECT id, name, email, role, can_book FROM employees
     WHERE active AND can_login AND (clerk_user_id = ${user.id}
       ${emails.length ? sql`OR lower(email) IN ${sql(emails)}` : sql``})
     ORDER BY (clerk_user_id = ${user.id}) DESC NULLS LAST
     LIMIT 1`;
   if (rows.length === 0) return null;
   const r = rows[0];
-  return { name: r.name, email: r.email ?? user.username ?? "", role: r.role === "manager" ? "manager" : "barber", employeeId: r.id };
+  const role: Role = r.role === "manager" ? "manager" : "barber";
+  return { name: r.name, email: r.email ?? user.username ?? "", role, employeeId: r.id, canBook: role === "manager" || Boolean(r.can_book) };
 }
 
 /** For admin pages: owner + manager. Barbers are sent to their own panel. */
@@ -57,5 +58,13 @@ export async function requireOwner(): Promise<Me> {
 export async function requireAny(): Promise<Me> {
   const me = await getMe();
   if (!me) redirect("/no-access");
+  return me;
+}
+
+/** Booking calendar: owner, manager, or staff given "Can schedule bookings". */
+export async function requireBooker(): Promise<Me> {
+  const me = await getMe();
+  if (!me) redirect("/no-access");
+  if (!me.canBook) redirect("/me");
   return me;
 }

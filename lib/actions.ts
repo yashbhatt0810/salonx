@@ -143,6 +143,7 @@ export async function saveEmployee(f: FormData) {
     joining_date: s(f, "joining_date"),
     can_login: bool(f, "can_login"),
     is_stylist: bool(f, "is_stylist"),
+    can_book: bool(f, "can_book"),
     active: s(f, "id") ? bool(f, "active") : true,
   };
   // Money and role fields are owner-only.

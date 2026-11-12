@@ -141,7 +141,7 @@ export default async function StaffPage({ params, searchParams }: { params: Prom
                     <button className={e.can_login ? "btn-danger btn-sm" : "btn-ghost btn-sm"}>{e.can_login ? <><Lock size={13} /> Disable login</> : <><Unlock size={13} /> Enable login</>}</button>
                   </form>
                 )}
-                <p className="mt-3 text-xs text-black/45">Staff sign in on the SalonX login page with this Login ID and password. They see only their own panel ({e.role === "manager" ? "manager access" : "barber access"}).</p>
+                <p className="mt-3 text-xs text-black/45">Staff sign in on the SalonX login page with this Login ID and password. {e.role === "manager" ? "Manager access." : "They see their own panel; tick “Can schedule bookings” in Profile to let them book appointments."}</p>
               </Card>
             </section>
           )}

@@ -195,3 +195,6 @@ CREATE TABLE IF NOT EXISTS appointment_services (
 
 CREATE INDEX IF NOT EXISTS idx_appt_date ON appointments(date);
 CREATE INDEX IF NOT EXISTS idx_appt_emp_date ON appointments(employee_id, date);
+
+-- v4: staff permission to schedule bookings
+ALTER TABLE employees ADD COLUMN IF NOT EXISTS can_book BOOLEAN NOT NULL DEFAULT FALSE;

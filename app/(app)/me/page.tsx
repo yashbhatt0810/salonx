@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CalendarCheck2, CheckCircle2, ChevronRight, DoorOpen, FileSpreadsheet, Percent, Play, Scissors, Wallet } from "lucide-react";
+import { CalendarPlus, CalendarCheck2, CheckCircle2, ChevronRight, DoorOpen, FileSpreadsheet, Percent, Play, Scissors, Wallet } from "lucide-react";
 import { db } from "@/lib/db";
 import { requireAny } from "@/lib/auth";
 import { salarySheet } from "@/lib/salary";
@@ -75,7 +75,11 @@ export default async function MyPanel({ searchParams }: { searchParams: Promise<
               </div>
             </div>
           </div>
-          <AutoRefresh seconds={30} />
+          <div className="flex flex-wrap items-center gap-2">
+            {me.canBook && <Link href="/appointments/new" className="btn bg-brass text-white hover:bg-brass-dark"><CalendarPlus size={16} /> New booking</Link>}
+            {me.canBook && <Link href="/appointments" className="btn border border-white/20 text-white hover:bg-white/10"><CalendarCheck2 size={16} /> Calendar</Link>}
+            <AutoRefresh seconds={30} />
+          </div>
         </div>
         <div className="relative mt-6 grid grid-cols-3 gap-3">
           {[

@@ -35,6 +35,7 @@ export function Shell({ me, salonName, children }: { me: Me; salonName: string; 
     me.role === "barber"
       ? [{ group: "My work", items: [
           { href: "/me", label: "My Panel", icon: "me" },
+          ...(me.canBook ? [{ href: "/appointments", label: "Appointments", icon: "calendar" }] : []),
           { href: "/me/commission", label: "My Commission", icon: "commission" },
           { href: "/me/slip", label: "Salary Slip", icon: "slip" },
         ] }]

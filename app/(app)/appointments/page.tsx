@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CalendarDays, ChevronLeft, ChevronRight, Globe, Phone, Plus, Users } from "lucide-react";
 import { db } from "@/lib/db";
-import { requireAdmin } from "@/lib/auth";
+import { requireBooker } from "@/lib/auth";
 import { getSettings } from "@/lib/settings";
 import { STATUS_META, fmtTime, nowMinutes, stylists as getStylists, toMin, fromMin } from "@/lib/booking";
 import { Card, PageHeader, Stat } from "@/components/ui";
@@ -15,7 +15,7 @@ const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart
 const addDays = (date: string, n: number) => { const d = new Date(`${date}T00:00:00`); d.setDate(d.getDate() + n); return iso(d); };
 
 export default async function Appointments({ searchParams }: { searchParams: Promise<{ date?: string; view?: string }> }) {
-  await requireAdmin();
+  await requireBooker();
   const sp = await searchParams;
   const date = sp.date && /^\d{4}-\d{2}-\d{2}$/.test(sp.date) ? sp.date : today();
   const view = sp.view === "week" ? "week" : "day";

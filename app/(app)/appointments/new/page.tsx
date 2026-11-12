@@ -1,11 +1,11 @@
-import { requireAdmin } from "@/lib/auth";
+import { requireBooker } from "@/lib/auth";
 import { bookingLists } from "@/lib/form-data";
 import { PageHeader } from "@/components/ui";
 import { AppointmentForm } from "@/components/AppointmentForm";
 import { today } from "@/lib/utils";
 
 export default async function NewAppointment({ searchParams }: { searchParams: Promise<{ date?: string; time?: string; stylist?: string; customer?: string }> }) {
-  await requireAdmin();
+  await requireBooker();
   const sp = await searchParams;
   const lists = await bookingLists();
   const cust = sp.customer ? lists.customers.find((c: { id: number }) => c.id === Number(sp.customer)) : null;

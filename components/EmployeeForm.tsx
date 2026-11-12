@@ -2,7 +2,7 @@ import { saveEmployee } from "@/lib/actions";
 import { Save, UserPlus } from "lucide-react";
 import { Field } from "./ui";
 
-type E = { is_stylist?: boolean; id?: number; name?: string; phone?: string | null; email?: string | null; role?: string; designation?: string | null; monthly_salary?: number; commission_pct?: number; joining_date?: string | null; can_login?: boolean; active?: boolean };
+type E = { can_book?: boolean; is_stylist?: boolean; id?: number; name?: string; phone?: string | null; email?: string | null; role?: string; designation?: string | null; monthly_salary?: number; commission_pct?: number; joining_date?: string | null; can_login?: boolean; active?: boolean };
 
 export function EmployeeForm({ e = {}, isOwner }: { e?: E; isOwner: boolean }) {
   return (
@@ -32,6 +32,7 @@ export function EmployeeForm({ e = {}, isOwner }: { e?: E; isOwner: boolean }) {
           )}
         </div>
         <label className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" name="can_login" defaultChecked={e.can_login ?? false} /> Can login</label>
+        <label className="mt-1 flex items-center gap-2 text-sm"><input type="checkbox" name="can_book" defaultChecked={e.can_book ?? false} /> Can schedule bookings (see calendar, book &amp; reschedule appointments)</label>
       </div>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_stylist" defaultChecked={e.is_stylist ?? true} /> Takes appointments (stylist)</label>
       {e.id && <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="active" defaultChecked={e.active ?? true} /> Currently working (active)</label>}
