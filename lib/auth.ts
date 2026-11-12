@@ -21,20 +21,22 @@ export async function getMe(): Promise<Me | null> {
   const user = await currentUser();
   if (!user) return null;
   const emails = user.emailAddresses.map((e) => e.emailAddress.toLowerCase());
-  const name = [user.firstName, user.lastName].filter(Boolean).join(" ") || emails[0] || "User";
+  const name = [user.firstName, user.lastName].filter(Boolean).join(" ") || user.username || emails[0] || "User";
 
   const owners = ownerEmails();
   const ownerEmail = emails.find((e) => owners.includes(e));
   if (ownerEmail) return { name, email: ownerEmail, role: "owner", employeeId: null };
 
-  if (emails.length === 0) return null;
-  const rows = await db()`
+  const sql = db();
+  const rows = await sql`
     SELECT id, name, email, role FROM employees
-    WHERE active AND can_login AND lower(email) IN ${db()(emails)}
+    WHERE active AND can_login AND (clerk_user_id = ${user.id}
+      ${emails.length ? sql`OR lower(email) IN ${sql(emails)}` : sql``})
+    ORDER BY (clerk_user_id = ${user.id}) DESC NULLS LAST
     LIMIT 1`;
   if (rows.length === 0) return null;
   const r = rows[0];
-  return { name: r.name, email: r.email, role: r.role === "manager" ? "manager" : "barber", employeeId: r.id };
+  return { name: r.name, email: r.email ?? user.username ?? "", role: r.role === "manager" ? "manager" : "barber", employeeId: r.id };
 }
 
 /** For admin pages: owner + manager. Barbers are sent to their own panel. */

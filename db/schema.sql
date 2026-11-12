@@ -159,3 +159,39 @@ CREATE INDEX IF NOT EXISTS idx_purchases_date ON purchases(date);
 -- v2: customer consent for WhatsApp / promotional messages (DPDP Act 2023)
 ALTER TABLE customers ADD COLUMN IF NOT EXISTS whatsapp_consent BOOLEAN NOT NULL DEFAULT FALSE;
 ALTER TABLE customers ADD COLUMN IF NOT EXISTS consent_at TIMESTAMPTZ;
+
+-- v3: appointments, employee login IDs
+ALTER TABLE employees ADD COLUMN IF NOT EXISTS username TEXT;
+ALTER TABLE employees ADD COLUMN IF NOT EXISTS clerk_user_id TEXT;
+ALTER TABLE employees ADD COLUMN IF NOT EXISTS is_stylist BOOLEAN NOT NULL DEFAULT TRUE;
+
+CREATE TABLE IF NOT EXISTS appointments (
+  id SERIAL PRIMARY KEY,
+  customer_id INT REFERENCES customers(id) ON DELETE SET NULL,
+  customer_name TEXT NOT NULL,
+  phone TEXT,
+  employee_id INT REFERENCES employees(id) ON DELETE SET NULL,
+  seat_id INT REFERENCES seats(id) ON DELETE SET NULL,
+  date DATE NOT NULL,
+  start_time TIME NOT NULL,
+  duration_min INT NOT NULL DEFAULT 30,
+  status TEXT NOT NULL DEFAULT 'booked'
+    CHECK (status IN ('booked','arrived','in_service','completed','cancelled','no_show')),
+  source TEXT NOT NULL DEFAULT 'counter',          -- counter | phone | online
+  notes TEXT,
+  visit_id INT REFERENCES visits(id) ON DELETE SET NULL,
+  created_by TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS appointment_services (
+  id SERIAL PRIMARY KEY,
+  appointment_id INT NOT NULL REFERENCES appointments(id) ON DELETE CASCADE,
+  service_id INT REFERENCES services(id) ON DELETE SET NULL,
+  service_name TEXT NOT NULL,
+  price NUMERIC(12,2) NOT NULL DEFAULT 0,
+  duration_min INT NOT NULL DEFAULT 30
+);
+
+CREATE INDEX IF NOT EXISTS idx_appt_date ON appointments(date);
+CREATE INDEX IF NOT EXISTS idx_appt_emp_date ON appointments(employee_id, date);

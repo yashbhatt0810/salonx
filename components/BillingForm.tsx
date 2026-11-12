@@ -13,8 +13,9 @@ type Line = { key: number; serviceId: number | null; name: string; employeeId: n
 
 const inr = (n: number) => "₹" + n.toLocaleString("en-IN", { maximumFractionDigits: 2 });
 
-export function BillingForm({ services, staff, seats, customers, defaultDate, presetCustomerId }: {
+export function BillingForm({ services, staff, seats, customers, defaultDate, presetCustomerId, presetSeatId = null, presetLines = [], appointmentId = null }: {
   services: Svc[]; staff: Opt[]; seats: Opt[]; customers: Cust[]; defaultDate: string; presetCustomerId: number | null;
+  presetSeatId?: number | null; presetLines?: { serviceId: number | null; name: string; employeeId: number | null; price: number }[]; appointmentId?: number | null;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -26,9 +27,9 @@ export function BillingForm({ services, staff, seats, customers, defaultDate, pr
   const [newName, setNewName] = useState("");
   const [newPhone, setNewPhone] = useState("");
   const [newConsent, setNewConsent] = useState(false);
-  const [seatId, setSeatId] = useState<number | null>(seats[0]?.id ?? null);
+  const [seatId, setSeatId] = useState<number | null>(presetSeatId ?? seats[0]?.id ?? null);
   const [date, setDate] = useState(defaultDate);
-  const [lines, setLines] = useState<Line[]>([]);
+  const [lines, setLines] = useState<Line[]>(() => presetLines.map((l, i) => ({ ...l, key: i + 1, qty: 1 })));
   const [discount, setDiscount] = useState(0);
   const [mode, setMode] = useState("Cash");
   const [notes, setNotes] = useState("");
@@ -58,7 +59,7 @@ export function BillingForm({ services, staff, seats, customers, defaultDate, pr
       const res = await createBill({
         customerId: customer?.id ?? null,
         newCustomer: !customer && newName.trim() ? { name: newName.trim(), phone: newPhone.trim() || null, consent: newConsent } : null,
-        seatId, date, discount: Number(discount) || 0, paymentMode: mode, notes: notes.trim() || null,
+        seatId, date, appointmentId, discount: Number(discount) || 0, paymentMode: mode, notes: notes.trim() || null,
         items: lines.map(({ serviceId, name, employeeId, price, qty }) => ({ serviceId, name, employeeId, price: Number(price), qty: Number(qty) })),
       });
       if (!res.ok) setError(res.error);

@@ -9,6 +9,11 @@ export type Settings = {
   contact_email: string;
   owner_name: string;
   city: string;
+  open_time: string;
+  close_time: string;
+  slot_minutes: number;
+  booking_enabled: boolean;
+  booking_days: number;
 };
 
 export async function getSettings(): Promise<Settings> {
@@ -28,5 +33,10 @@ export async function getSettings(): Promise<Settings> {
     contact_email: m.contact_email || "",
     owner_name: m.owner_name || "",
     city: m.city || "Rajkot, Gujarat",
+    open_time: m.open_time || "09:00",
+    close_time: m.close_time || "21:00",
+    slot_minutes: Math.max(5, Number(m.slot_minutes || 15)),
+    booking_enabled: (m.booking_enabled ?? "1") === "1",
+    booking_days: Math.min(60, Math.max(1, Number(m.booking_days || 7))),
   };
 }

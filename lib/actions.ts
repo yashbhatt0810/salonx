@@ -142,6 +142,7 @@ export async function saveEmployee(f: FormData) {
     designation: s(f, "designation"),
     joining_date: s(f, "joining_date"),
     can_login: bool(f, "can_login"),
+    is_stylist: bool(f, "is_stylist"),
     active: s(f, "id") ? bool(f, "active") : true,
   };
   // Money and role fields are owner-only.
@@ -249,6 +250,7 @@ export type BillInput = {
   newCustomer?: { name: string; phone: string | null; consent?: boolean } | null;
   seatId: number | null;
   date: string;
+  appointmentId?: number | null;
   discount: number;
   paymentMode: string;
   notes: string | null;
@@ -284,9 +286,13 @@ export async function createBill(input: BillInput): Promise<{ ok: true; visitId:
         await tx`INSERT INTO visit_items (visit_id, service_id, service_name, employee_id, price, qty)
           VALUES (${v.id}, ${i.serviceId}, ${i.name}, ${i.employeeId}, ${i.price}, ${i.qty})`;
       }
+      if (input.appointmentId) {
+        await tx`UPDATE appointments SET status = 'completed', visit_id = ${v.id},
+          customer_id = coalesce(customer_id, ${customerId}) WHERE id = ${input.appointmentId} AND visit_id IS NULL`;
+      }
       return v.id as number;
     });
-    done("/", "/visits", "/customers", "/reports", "/salary");
+    done("/", "/visits", "/customers", "/reports", "/salary", "/appointments", "/me");
     return { ok: true, visitId };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Could not save bill" };
@@ -381,11 +387,84 @@ export async function deleteUsage(f: FormData) {
 export async function saveSettings(f: FormData) {
   await requireOwner();
   const sql = db();
-  for (const key of ["salon_name", "salon_address", "salon_phone", "bill_footer", "reminder_days", "contact_email", "owner_name", "city"]) {
+  for (const key of ["salon_name", "salon_address", "salon_phone", "bill_footer", "reminder_days", "contact_email", "owner_name", "city", "open_time", "close_time", "slot_minutes", "booking_days"]) {
     const v = s(f, key);
     if (v === null) await sql`DELETE FROM settings WHERE key = ${key}`;
     else await sql`INSERT INTO settings (key, value) VALUES (${key}, ${v}) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`;
   }
+  const be = bool(f, "booking_enabled") ? "1" : "0";
+  await sql`INSERT INTO settings (key, value) VALUES ('booking_enabled', ${be}) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`;
   done("/", "/settings");
   redirect("/settings?saved=1");
+}
+
+/* ───────────── Employee login ID & password (Clerk) ───────────── */
+function clerkError(e: unknown): string {
+  const errs = (e as { errors?: { longMessage?: string; message?: string; code?: string }[] })?.errors;
+  const first = errs?.[0];
+  if (first?.code === "form_param_unknown" || /username/i.test(first?.message ?? "") && /not.*(enabled|allowed|valid)/i.test(first?.longMessage ?? ""))
+    return "Turn on Username + Password sign-in in Clerk (Configure → User & authentication) and try again.";
+  return first?.longMessage || first?.message || (e instanceof Error ? e.message : "Could not save login");
+}
+
+export async function setEmployeeLogin(f: FormData) {
+  await requireOwner();
+  const eid = id(f, "employee_id");
+  const username = (s(f, "username") ?? "").toLowerCase();
+  const password = String(f.get("password") ?? "");
+  const back = (msg: string, ok = false) => redirect(`/staff/${eid}?${ok ? "loginOk" : "loginErr"}=${encodeURIComponent(msg)}#login`);
+  if (!/^[a-z0-9_.-]{4,30}$/.test(username)) back("Login ID: 4–30 letters/numbers (a-z, 0-9, _ . -), no spaces.");
+  const sql = db();
+  const [emp] = await sql`SELECT id, name, clerk_user_id FROM employees WHERE id = ${eid}`;
+  if (!emp) back("Staff not found");
+  if (!emp.clerk_user_id && password.length < 8) back("Password must be at least 8 characters.");
+  if (emp.clerk_user_id && password && password.length < 8) back("Password must be at least 8 characters.");
+
+  const { clerkClient } = await import("@clerk/nextjs/server");
+  const client = await clerkClient();
+  const [first, ...rest] = String(emp.name).trim().split(/\s+/);
+  let clerkId: string = emp.clerk_user_id;
+  try {
+    if (clerkId) {
+      await client.users.updateUser(clerkId, { username, ...(password ? { password, skipPasswordChecks: false, signOutOfOtherSessions: true } : {}) });
+    } else {
+      const u = await client.users.createUser({ username, password, firstName: first, lastName: rest.join(" ") || undefined, publicMetadata: { salonxEmployeeId: eid } });
+      clerkId = u.id;
+    }
+  } catch (e) {
+    back(clerkError(e));
+  }
+  await sql`UPDATE employees SET username = ${username}, clerk_user_id = ${clerkId}, can_login = TRUE WHERE id = ${eid}`;
+  revalidatePath(`/staff/${eid}`);
+  back(password ? "Login saved. Share the Login ID and password with the staff member." : "Login ID updated.", true);
+}
+
+export async function disableEmployeeLogin(f: FormData) {
+  await requireOwner();
+  const eid = id(f, "employee_id");
+  const [emp] = await db()`SELECT clerk_user_id FROM employees WHERE id = ${eid}`;
+  if (emp?.clerk_user_id) {
+    try {
+      const { clerkClient } = await import("@clerk/nextjs/server");
+      await (await clerkClient()).users.lockUser(emp.clerk_user_id);
+    } catch { /* access is still blocked by can_login below */ }
+  }
+  await db()`UPDATE employees SET can_login = FALSE WHERE id = ${eid}`;
+  revalidatePath(`/staff/${eid}`);
+  redirect(`/staff/${eid}?loginOk=${encodeURIComponent("Login disabled.")}#login`);
+}
+
+export async function enableEmployeeLogin(f: FormData) {
+  await requireOwner();
+  const eid = id(f, "employee_id");
+  const [emp] = await db()`SELECT clerk_user_id FROM employees WHERE id = ${eid}`;
+  if (emp?.clerk_user_id) {
+    try {
+      const { clerkClient } = await import("@clerk/nextjs/server");
+      await (await clerkClient()).users.unlockUser(emp.clerk_user_id);
+    } catch { /* ignore */ }
+  }
+  await db()`UPDATE employees SET can_login = TRUE WHERE id = ${eid}`;
+  revalidatePath(`/staff/${eid}`);
+  redirect(`/staff/${eid}?loginOk=${encodeURIComponent("Login enabled.")}#login`);
 }

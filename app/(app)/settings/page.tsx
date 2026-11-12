@@ -22,6 +22,16 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           <Field label="Contact / grievance email"><input className="input" type="email" name="contact_email" defaultValue={s.contact_email} /></Field>
           <Field label="City (jurisdiction)"><input className="input" name="city" defaultValue={s.city} /></Field>
           <Field label="Remind customers after (days)"><input className="input" type="number" min={7} name="reminder_days" defaultValue={s.reminder_days} /></Field>
+          <div className="rounded-xl border border-black/10 p-3 sm:col-span-2">
+            <div className="mb-2 text-sm font-semibold">Booking & timings</div>
+            <div className="grid gap-3 sm:grid-cols-4">
+              <Field label="Opens at"><input className="input" type="time" name="open_time" defaultValue={s.open_time} /></Field>
+              <Field label="Closes at"><input className="input" type="time" name="close_time" defaultValue={s.close_time} /></Field>
+              <Field label="Slot (minutes)"><input className="input" type="number" min={5} step={5} name="slot_minutes" defaultValue={s.slot_minutes} /></Field>
+              <Field label="Online booking days ahead"><input className="input" type="number" min={1} max={60} name="booking_days" defaultValue={s.booking_days} /></Field>
+            </div>
+            <label className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" name="booking_enabled" defaultChecked={s.booking_enabled} /> Allow customers to book online (public /book page)</label>
+          </div>
           <div className="sm:col-span-2"><button className="btn-primary"><Save size={14} /> Save settings</button></div>
         </form>
       </Card>

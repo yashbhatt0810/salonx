@@ -58,3 +58,23 @@ export const ATT_LABEL: Record<string, string> = { P: "Present", H: "Half day", 
 export function paidDays(counts: { P: number; H: number; A: number; W: number }) {
   return counts.P + counts.W + counts.H * 0.5;
 }
+
+export const empCode = (id: number) => `EMP${String(id).padStart(3, "0")}`;
+
+export function amountInWords(n: number): string {
+  const a = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+  const b = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+  const two = (x: number) => (x < 20 ? a[x] : `${b[Math.floor(x / 10)]}${x % 10 ? " " + a[x % 10] : ""}`);
+  const three = (x: number) => `${x >= 100 ? a[Math.floor(x / 100)] + " Hundred" + (x % 100 ? " " : "") : ""}${x % 100 ? two(x % 100) : ""}`;
+  let v = Math.round(Math.abs(n));
+  if (v === 0) return "Zero Rupees Only";
+  const parts: string[] = [];
+  const crore = Math.floor(v / 10000000); v %= 10000000;
+  const lakh = Math.floor(v / 100000); v %= 100000;
+  const thousand = Math.floor(v / 1000); v %= 1000;
+  if (crore) parts.push(`${two(crore)} Crore`);
+  if (lakh) parts.push(`${two(lakh)} Lakh`);
+  if (thousand) parts.push(`${two(thousand)} Thousand`);
+  if (v) parts.push(three(v));
+  return `${parts.join(" ")} Rupees Only`;
+}

@@ -1,7 +1,7 @@
 import {
   Armchair, Banknote, BellRing, Cake, CalendarCheck, ChartLine, ClipboardList, Coffee, CreditCard, FileText,
   HandCoins, IndianRupee, LayoutDashboard, ListChecks, Lock, type LucideIcon, Package, Plus, ReceiptText, Scissors,
-  Settings, ShieldCheck, Smartphone, Sparkles, Store, Tag, TriangleAlert, User, UserCog, Users, Wallet, Clock,
+  Settings, ShieldCheck, CalendarClock, Percent, FileSpreadsheet, KeyRound, Lightbulb, Globe, Smartphone, Sparkles, Store, Tag, TriangleAlert, User, UserCog, Users, Wallet, Clock,
 } from "lucide-react";
 
 /** Name → icon. Names are plain strings so server components can pass them to client components. */
@@ -10,6 +10,7 @@ export const ICONS: Record<string, LucideIcon> = {
   expenses: Wallet, purchases: Package, salary: HandCoins, reports: ChartLine, staff: UserCog, services: Scissors,
   seats: Armchair, settings: Settings, me: User, terms: FileText, privacy: Lock, consent: ShieldCheck,
   rupee: IndianRupee, cake: Cake, bell: BellRing, alert: TriangleAlert, list: ListChecks, store: Store, tag: Tag,
+  calendar: CalendarClock, commission: Percent, slip: FileSpreadsheet, key: KeyRound, insight: Lightbulb, globe: Globe,
   clock: Clock, tea: Coffee, clipboard: ClipboardList, sparkles: Sparkles,
   Cash: Banknote, UPI: Smartphone, Card: CreditCard, Credit: ClipboardList,
 };

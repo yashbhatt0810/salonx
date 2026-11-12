@@ -12,7 +12,7 @@ export function NavLinks({ groups }: { groups: { group: string; items: NavItem[]
         <div key={g.group} className="mb-4">
           <div className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">{g.group}</div>
           {g.items.map((i) => {
-            const active = i.href === "/" ? path === "/" : path.startsWith(i.href);
+            const active = i.href === "/" || i.href === "/me" ? path === i.href : path.startsWith(i.href);
             return (
               <Link
                 key={i.href}

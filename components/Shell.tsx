@@ -9,6 +9,7 @@ export type NavItem = { href: string; label: string; icon: string; owner?: boole
 const NAV: { group: string; items: NavItem[] }[] = [
   { group: "Daily", items: [
     { href: "/", label: "Dashboard", icon: "dashboard" },
+    { href: "/appointments", label: "Appointments", icon: "calendar" },
     { href: "/billing", label: "New Bill", icon: "bill" },
     { href: "/visits", label: "Bills", icon: "bills" },
     { href: "/customers", label: "Customers", icon: "customers" },
@@ -18,6 +19,7 @@ const NAV: { group: string; items: NavItem[] }[] = [
     { href: "/expenses", label: "Expenses", icon: "expenses" },
     { href: "/purchases", label: "Purchases & Stock", icon: "purchases" },
     { href: "/salary", label: "Salary Sheet", icon: "salary", owner: true },
+    { href: "/commission", label: "Commission", icon: "commission", owner: true },
     { href: "/reports", label: "Reports", icon: "reports", owner: true },
   ]},
   { group: "Setup", items: [
@@ -31,7 +33,11 @@ const NAV: { group: string; items: NavItem[] }[] = [
 export function Shell({ me, salonName, children }: { me: Me; salonName: string; children: React.ReactNode }) {
   const groups =
     me.role === "barber"
-      ? [{ group: "My work", items: [{ href: "/me", label: "My Panel", icon: "me" }] }]
+      ? [{ group: "My work", items: [
+          { href: "/me", label: "My Panel", icon: "me" },
+          { href: "/me/commission", label: "My Commission", icon: "commission" },
+          { href: "/me/slip", label: "Salary Slip", icon: "slip" },
+        ] }]
       : NAV.map((g) => ({ ...g, items: g.items.filter((i) => !i.owner || me.role === "owner") }));
   const side = (
     <div className="flex h-full flex-col">
@@ -52,15 +58,15 @@ export function Shell({ me, salonName, children }: { me: Me; salonName: string; 
   );
   return (
     <div className="min-h-screen md:flex">
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 bg-ink md:block">{side}</aside>
-      <details className="group sticky top-0 z-30 bg-ink md:hidden">
+      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 bg-ink md:block print:!hidden">{side}</aside>
+      <details className="group sticky top-0 z-30 bg-ink md:hidden print:hidden">
         <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3">
           <span className="font-display text-xl font-semibold text-white">Salon<span className="text-brass">X</span></span>
           <span className="flex items-center gap-1.5 rounded-md border border-white/20 px-2.5 py-1 text-sm text-white"><Menu size={15} /> Menu</span>
         </summary>
         <div className="max-h-[80vh] overflow-y-auto pb-2">{side}</div>
       </details>
-      <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8">{children}</main>
+      <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8 print:p-0">{children}</main>
     </div>
   );
 }

@@ -20,7 +20,8 @@
     "next": "^15.5.29",
     "postgres": "^4.1.1",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

@@ -1,19 +1,20 @@
 import { notFound } from "next/navigation";
-import { Save } from "lucide-react";
+import Link from "next/link";
+import { FileSpreadsheet, KeyRound, Lock, Percent, Save, Unlock } from "lucide-react";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
-import { addEmployeeTxn, deleteEmployee, deleteEmployeeTxn } from "@/lib/actions";
+import { addEmployeeTxn, deleteEmployee, deleteEmployeeTxn, disableEmployeeLogin, enableEmployeeLogin, setEmployeeLogin } from "@/lib/actions";
 import { salarySheet } from "@/lib/salary";
 import { Card, Empty, MonthNav, PageHeader, Stat, Table } from "@/components/ui";
 import { EmployeeForm } from "@/components/EmployeeForm";
 import { AttendanceCalendar } from "@/components/AttendanceCalendar";
 import { SalaryBreakdown } from "@/components/SalaryBreakdown";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
-import { PAYMENT_MODES, fmtDate, inr, monthLabel, monthRange, shiftMonth, thisMonth, today } from "@/lib/utils";
+import { PAYMENT_MODES, empCode, fmtDate, inr, monthLabel, monthRange, shiftMonth, thisMonth, today } from "@/lib/utils";
 
 const TXN_LABEL: Record<string, string> = { upad: "Upad (advance)", bonus: "Bonus", salary_paid: "Salary paid" };
 
-export default async function StaffPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ month?: string }> }) {
+export default async function StaffPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ month?: string; loginOk?: string; loginErr?: string }> }) {
   const me = await requireAdmin();
   const { id } = await params;
   const sp = await searchParams;
@@ -40,7 +41,11 @@ export default async function StaffPage({ params, searchParams }: { params: Prom
       <PageHeader
         title={e.name}
         sub={`${e.designation ?? e.role}${e.joining_date ? ` · joined ${fmtDate(e.joining_date)}` : ""}${e.active ? "" : " · not active"}`}
-        action={<MonthNav base={`/staff/${e.id}`} month={month} label={monthLabel(month)} prev={shiftMonth(month, -1)} next={shiftMonth(month, 1)} />}
+        action={<>
+          {isOwner && <Link href={`/staff/${e.id}/commission?month=${month}`} className="btn-ghost"><Percent size={15} /> Commission</Link>}
+          {isOwner && <Link href={`/staff/${e.id}/slip?month=${month}`} className="btn-ghost"><FileSpreadsheet size={15} /> Salary slip</Link>}
+          <MonthNav base={`/staff/${e.id}`} month={month} label={monthLabel(month)} prev={shiftMonth(month, -1)} next={shiftMonth(month, 1)} />
+        </>}
       />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat icon="services" label="Services done" value={totalServices} />
@@ -112,6 +117,34 @@ export default async function StaffPage({ params, searchParams }: { params: Prom
           )}
         </Card>
         <div className="space-y-4 lg:col-span-3">
+          {isOwner && (
+            <section id="login" className="scroll-mt-20">
+              <Card icon="key" title="Login ID & password">
+                <div className="mb-3 flex flex-wrap items-center gap-2 text-sm">
+                  <span className="pill bg-ink px-2.5 py-1 text-white">{empCode(e.id)}</span>
+                  {e.clerk_user_id ? (
+                    e.can_login ? <span className="pill bg-emerald-50 px-2.5 py-1 text-emerald-700">Login active · {e.username}</span>
+                      : <span className="pill bg-red-50 px-2.5 py-1 text-red-700">Login disabled · {e.username}</span>
+                  ) : <span className="pill bg-black/5 px-2.5 py-1 text-black/55">No login yet</span>}
+                </div>
+                {sp.loginOk && <div className="mb-3 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{sp.loginOk}</div>}
+                {sp.loginErr && <div className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{sp.loginErr}</div>}
+                <form action={setEmployeeLogin} className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
+                  <input type="hidden" name="employee_id" value={e.id} />
+                  <label><span className="label">Login ID</span><input className="input" name="username" required defaultValue={e.username ?? e.name.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 12) + String(e.id).padStart(2, "0")} autoComplete="off" /></label>
+                  <label><span className="label">{e.clerk_user_id ? "New password (leave blank to keep)" : "Password (min 8)"}</span><input className="input" type="password" name="password" minLength={e.clerk_user_id ? undefined : 8} required={!e.clerk_user_id} autoComplete="new-password" /></label>
+                  <div className="flex items-end"><button className="btn-primary w-full"><KeyRound size={14} /> {e.clerk_user_id ? "Update" : "Create login"}</button></div>
+                </form>
+                {e.clerk_user_id && (
+                  <form action={e.can_login ? disableEmployeeLogin : enableEmployeeLogin} className="mt-2">
+                    <input type="hidden" name="employee_id" value={e.id} />
+                    <button className={e.can_login ? "btn-danger btn-sm" : "btn-ghost btn-sm"}>{e.can_login ? <><Lock size={13} /> Disable login</> : <><Unlock size={13} /> Enable login</>}</button>
+                  </form>
+                )}
+                <p className="mt-3 text-xs text-black/45">Staff sign in on the SalonX login page with this Login ID and password. They see only their own panel ({e.role === "manager" ? "manager access" : "barber access"}).</p>
+              </Card>
+            </section>
+          )}
           <Card icon="staff" title="Profile"><EmployeeForm e={e as never} isOwner={isOwner} /></Card>
           {isOwner && (
             <form action={deleteEmployee} className="text-right">
