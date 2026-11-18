@@ -48,8 +48,8 @@ def frame(art, tag, h1a, h1b, sub, fs=74):
 <text x="540" y="1078" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="{fs}" fill="{W}">{h1a} <tspan fill="{Y}">{h1b}</tspan></text>
 <text x="540" y="1140" text-anchor="middle" font-family="Poppins" font-weight="400" font-size="32" fill="#dfe7f5">{sub}</text>
 <rect x="0" y="1230" width="1080" height="120" fill="{Y}"/>
-<text x="540" y="1282" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="34" fill="{N}">www.lukeronlubricants.com</text>
-<text x="540" y="1324" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="24" fill="{N}">Oils · Greases · Coolants  ·  WhatsApp +91 98986 84484  ·  Jamnagar</text>
+<text x="540" y="1276" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="30" fill="{N}">www.lukeronlubricants.com  ·  WhatsApp +91 98986 84484</text>
+<text x="540" y="1318" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="19.5" fill="{N}" letter-spacing="0.6">ENGINE OIL · GEAR OIL · HYDRAULIC OIL · GREASE · COOLANT · BRAKE FLUID  |  JAMNAGAR, GUJARAT, INDIA</text>
 </svg>'''
 
 # ---------- 1. Dev Uthani Ekadashi: mechanical rangoli with oil-drop diya ----------
