@@ -143,7 +143,7 @@ https://raw.githubusercontent.com/yashbhatt0810/salonx/lukeron-media/2026-12-01-
 
 Workshop safety: oil se jude 4 rules jo har mechanic aur plant team ko yaad hone chahiye.
 
-1. Floor pe oil gira? Turant saaf karo, fisalne se bado accident hote hain.
+1. Floor pe oil gira? Turant saaf karo, fisalne se bade accident hote hain.
 2. Garam engine ya gearbox ka oil mat kholo. Pehle thanda hone do.
 3. Oil change ke time gloves aur goggles pehno.
 4. Used oil drum mein jama karo, naali ya zameen mein kabhi nahi.
